@@ -115,7 +115,7 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/smart-card" : "/auth")}>
             <CardHeader>
               <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
                 <CreditCard className="h-6 w-6 text-green-600" />
@@ -126,8 +126,8 @@ const Index = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full" disabled>
-                Coming Soon
+              <Button className="w-full">
+                {user ? "Manage Card" : "Sign In to Access"}
               </Button>
             </CardContent>
           </Card>
