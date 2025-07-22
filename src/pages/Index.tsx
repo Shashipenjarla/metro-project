@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Train, MapPin, CreditCard, User, LogOut } from "lucide-react";
+import { Train, MapPin, CreditCard, Wallet, User, LogOut } from "lucide-react";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -80,7 +80,7 @@ const Index = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/booking" : "/auth")}>
             <CardHeader>
               <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
@@ -128,6 +128,23 @@ const Index = () => {
             <CardContent>
               <Button className="w-full">
                 {user ? "Manage Card" : "Sign In to Access"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/virtual-card" : "/auth")}>
+            <CardHeader>
+              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <Wallet className="h-6 w-6 text-purple-600" />
+              </div>
+              <CardTitle>Virtual E-Card</CardTitle>
+              <CardDescription>
+                Create a digital contactless metro card with QR code for seamless travel
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                {user ? "Create E-Card" : "Sign In to Create"}
               </Button>
             </CardContent>
           </Card>

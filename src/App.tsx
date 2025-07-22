@@ -8,6 +8,7 @@ import Auth from "./pages/Auth";
 import Booking from "./pages/Booking";
 import Confirmation from "./pages/Confirmation";
 import SmartCard from "./pages/SmartCard";
+import VirtualCard from "./pages/VirtualCard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/booking" element={<Booking />} />
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/smart-card" element={<SmartCard />} />
+          <Route path="/virtual-card" element={<VirtualCard />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
