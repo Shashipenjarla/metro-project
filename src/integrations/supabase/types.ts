@@ -14,7 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      virtual_card_transactions: {
+        Row: {
+          amount: number
+          card_id: string
+          created_at: string
+          description: string | null
+          id: string
+          payment_method: string | null
+          status: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          card_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          payment_method?: string | null
+          status?: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          card_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          payment_method?: string | null
+          status?: string
+          transaction_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "virtual_card_transactions_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "virtual_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      virtual_cards: {
+        Row: {
+          balance: number
+          card_number: string
+          created_at: string
+          holder_name: string
+          id: string
+          profile_image_url: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          balance?: number
+          card_number: string
+          created_at?: string
+          holder_name: string
+          id?: string
+          profile_image_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          balance?: number
+          card_number?: string
+          created_at?: string
+          holder_name?: string
+          id?: string
+          profile_image_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
