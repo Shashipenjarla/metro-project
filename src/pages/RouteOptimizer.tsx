@@ -21,7 +21,7 @@ const METRO_GRAPH = {
   "Erragadda": { "Bharat Nagar": 2, "ESI Hospital": 3 },
   "ESI Hospital": { "Erragadda": 3, "SR Nagar": 2 },
   "SR Nagar": { "ESI Hospital": 2, "Ameerpet": 3 },
-  "Ameerpet": { "SR Nagar": 3, "Panjagutta": 2, "Madhura Nagar": 2 }, // Interchange Red-Blue
+  "Ameerpet": { "SR Nagar": 3, "Panjagutta": 2, "Madhura Nagar": 2, "Begumpet": 3 }, // Interchange Red-Blue
   "Panjagutta": { "Ameerpet": 2, "Irrum Manzil": 3 },
   "Irrum Manzil": { "Panjagutta": 3, "Khairatabad": 2 },
   "Khairatabad": { "Irrum Manzil": 2, "Lakdi-ka-pul": 3 },
