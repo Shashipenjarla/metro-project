@@ -10,105 +10,89 @@ import { ArrowLeft, MapPin, Clock, IndianRupee, Route, Navigation } from "lucide
 
 // Metro stations with connections and weights (time in minutes)
 const METRO_GRAPH = {
-  // Red Line
-  "Miyapur": { "JNTU College": 3, "KPHB Colony": 4 },
-  "JNTU College": { "Miyapur": 3, "Kukatpally": 2 },
-  "KPHB Colony": { "Miyapur": 4, "Kukatpally": 3 },
-  "Kukatpally": { "JNTU College": 2, "KPHB Colony": 3, "Balanagar": 4 },
-  "Balanagar": { "Kukatpally": 4, "Moosapet": 3 },
-  "Moosapet": { "Balanagar": 3, "Bharat Nagar": 2 },
-  "Bharat Nagar": { "Moosapet": 2, "Erragadda": 3 },
-  "Erragadda": { "Bharat Nagar": 3, "ESI Hospital": 2 },
-  "ESI Hospital": { "Erragadda": 2, "SR Nagar": 3 },
-  "SR Nagar": { "ESI Hospital": 3, "Ameerpet": 4 },
-  "Ameerpet": { "SR Nagar": 4, "Begumpet": 3, "Punjagutta": 4 }, // Interchange
-  "Begumpet": { "Ameerpet": 3, "Prakash Nagar": 2 },
-  "Prakash Nagar": { "Begumpet": 2, "Rasoolpura": 3 },
-  "Rasoolpura": { "Prakash Nagar": 3, "Paradise": 2 },
-  "Paradise": { "Rasoolpura": 2, "Parade Ground": 3 },
-  "Parade Ground": { "Paradise": 3, "Secunderabad West": 2 },
-  "Secunderabad West": { "Parade Ground": 2, "Gandhi Hospital": 4 },
-  "Gandhi Hospital": { "Secunderabad West": 4, "Musheerabad": 3 },
-  "Musheerabad": { "Gandhi Hospital": 3, "RTC X Roads": 2 },
-  "RTC X Roads": { "Musheerabad": 2, "Chikkadpally": 3 },
-  "Chikkadpally": { "RTC X Roads": 3, "Narayanguda": 2 },
-  "Narayanguda": { "Chikkadpally": 2, "Sultan Bazar": 3 },
-  "Sultan Bazar": { "Narayanguda": 3, "MG Bus Station": 2 },
-  "MG Bus Station": { "Sultan Bazar": 2, "Malakpet": 4 },
-  "Malakpet": { "MG Bus Station": 4, "New Market": 3 },
-  "New Market": { "Malakpet": 3, "Musarambagh": 2 },
-  "Musarambagh": { "New Market": 2, "Dilsukhnagar": 4 },
-  "Dilsukhnagar": { "Musarambagh": 4, "Chaitanyapuri": 3 },
-  "Chaitanyapuri": { "Dilsukhnagar": 3, "Victoria Memorial": 2 },
-  "Victoria Memorial": { "Chaitanyapuri": 2, "LB Nagar": 4 },
-  "LB Nagar": { "Victoria Memorial": 4 },
-
-  // Blue Line
-  "Nagole": { "Uppal": 3, "Stadium": 5 },
-  "Uppal": { "Nagole": 3, "Survey Settlement": 2 },
-  "Survey Settlement": { "Uppal": 2, "Mettuguda": 3 },
-  "Mettuguda": { "Survey Settlement": 3, "Tarnaka": 2 },
-  "Tarnaka": { "Mettuguda": 2, "Habsiguda": 3 },
-  "Habsiguda": { "Tarnaka": 3, "NGRI": 2 },
-  "NGRI": { "Habsiguda": 2, "Stadium": 3 },
-  "Stadium": { "NGRI": 3, "Nagole": 5, "Arts College": 2 },
-  "Arts College": { "Stadium": 2, "Vidya Nagar": 3 },
-  "Vidya Nagar": { "Arts College": 3, "Gandhi Nagar": 2 },
-  "Gandhi Nagar": { "Vidya Nagar": 2, "Osmania Medical": 3 },
-  "Osmania Medical": { "Gandhi Nagar": 3, "MG Bus Station": 2 }, // Interchange
-  
-  // Green Line
-  "Jubilee Bus Station": { "Secunderabad": 4, "Parade Ground": 3 },
-  "Secunderabad": { "Jubilee Bus Station": 4, "East Marredpally": 3 },
-  "East Marredpally": { "Secunderabad": 3, "Alugadda Bhavi": 2 },
-  "Alugadda Bhavi": { "East Marredpally": 2, "Maredpally": 3 },
-  "Maredpally": { "Alugadda Bhavi": 3, "Punjagutta": 4 },
-  "Punjagutta": { "Maredpally": 4, "Ameerpet": 4, "Irrum Manzil": 3 }, // Interchange
-  "Irrum Manzil": { "Punjagutta": 3, "Khairatabad": 2 },
-  "Khairatabad": { "Irrum Manzil": 2, "Lakdikapul": 3 },
-  "Lakdikapul": { "Khairatabad": 3, "Assembly": 2 },
-  "Assembly": { "Lakdikapul": 2, "Nampally": 3 },
+  // Red Line (Miyapur to LB Nagar)
+  "Miyapur": { "JNTU College": 3 },
+  "JNTU College": { "Miyapur": 3, "KPHB Colony": 2 },
+  "KPHB Colony": { "JNTU College": 2, "Kukatpally": 3 },
+  "Kukatpally": { "KPHB Colony": 3, "Balanagar": 3 },
+  "Balanagar": { "Kukatpally": 3, "Moosapet": 2 },
+  "Moosapet": { "Balanagar": 2, "Bharat Nagar": 3 },
+  "Bharat Nagar": { "Moosapet": 3, "Erragadda": 2 },
+  "Erragadda": { "Bharat Nagar": 2, "ESI Hospital": 3 },
+  "ESI Hospital": { "Erragadda": 3, "SR Nagar": 2 },
+  "SR Nagar": { "ESI Hospital": 2, "Ameerpet": 3 },
+  "Ameerpet": { "SR Nagar": 3, "Panjagutta": 2, "Madhura Nagar": 2 }, // Interchange Red-Blue
+  "Panjagutta": { "Ameerpet": 2, "Irrum Manzil": 3 },
+  "Irrum Manzil": { "Panjagutta": 3, "Khairatabad": 2 },
+  "Khairatabad": { "Irrum Manzil": 2, "Lakdi-ka-pul": 3 },
+  "Lakdi-ka-pul": { "Khairatabad": 3, "Assembly": 2 },
+  "Assembly": { "Lakdi-ka-pul": 2, "Nampally": 3 },
   "Nampally": { "Assembly": 3, "Gandhi Bhavan": 2 },
-  "Gandhi Bhavan": { "Nampally": 2, "Osmania Medical": 3 },
-  
-  // Airport Express Line
-  "HITEC City": { "Raidurg": 4, "Cyber Towers": 3 },
-  "Raidurg": { "HITEC City": 4, "Financial District": 5 },
-  "Financial District": { "Raidurg": 5, "Shamshabad Airport": 15 },
-  "Shamshabad Airport": { "Financial District": 15 },
-  "Cyber Towers": { "HITEC City": 3, "Madhapur": 2 },
-  "Madhapur": { "Cyber Towers": 2, "Durgam Cheruvu": 3 },
-  "Durgam Cheruvu": { "Madhapur": 3, "Jubilee Hills": 4 },
-  "Jubilee Hills": { "Durgam Cheruvu": 4, "Peddamma Gudi": 3 },
-  "Peddamma Gudi": { "Jubilee Hills": 3, "Madhapur": 5 }
+  "Gandhi Bhavan": { "Nampally": 2, "Osmania Medical College": 3 },
+  "Osmania Medical College": { "Gandhi Bhavan": 3, "MG Bus Station": 2 },
+  "MG Bus Station": { "Osmania Medical College": 2, "Malakpet": 3, "Salarjung Museum": 2 }, // Interchange Red-Green
+  "Malakpet": { "MG Bus Station": 3, "New Market": 2 },
+  "New Market": { "Malakpet": 2, "Moosarambagh": 3 },
+  "Moosarambagh": { "New Market": 3, "Dilsukhnagar": 2 },
+  "Dilsukhnagar": { "Moosarambagh": 2, "Chaitanyapuri": 3 },
+  "Chaitanyapuri": { "Dilsukhnagar": 3, "Victoria Memorial": 2 },
+  "Victoria Memorial": { "Chaitanyapuri": 2, "LB Nagar": 3 },
+  "LB Nagar": { "Victoria Memorial": 3 },
+
+  // Blue Line (Nagole to Raidurg)
+  "Nagole": { "Uppal": 3 },
+  "Uppal": { "Nagole": 3, "Stadium": 2 },
+  "Stadium": { "Uppal": 2, "NGRI": 3 },
+  "NGRI": { "Stadium": 3, "Habsiguda": 2 },
+  "Habsiguda": { "NGRI": 2, "Tarnaka": 3 },
+  "Tarnaka": { "Habsiguda": 3, "Mettuguda": 2 },
+  "Mettuguda": { "Tarnaka": 2, "Secunderabad East": 3 },
+  "Secunderabad East": { "Mettuguda": 3, "Parade Ground": 2 },
+  "Parade Ground": { "Secunderabad East": 2, "Paradise": 3 }, // Interchange Blue-Green
+  "Paradise": { "Parade Ground": 3, "Rasoolpura": 2 },
+  "Rasoolpura": { "Paradise": 2, "Prakash Nagar": 3 },
+  "Prakash Nagar": { "Rasoolpura": 3, "Begumpet": 2 },
+  "Begumpet": { "Prakash Nagar": 2, "Ameerpet": 3 },
+  "Madhura Nagar": { "Ameerpet": 2, "Yousufguda": 3 },
+  "Yousufguda": { "Madhura Nagar": 3, "Jubilee Hills Road No. 5": 2 },
+  "Jubilee Hills Road No. 5": { "Yousufguda": 2, "Jubilee Hills Checkpost": 3 },
+  "Jubilee Hills Checkpost": { "Jubilee Hills Road No. 5": 3, "Peddamma Gudi": 2 },
+  "Peddamma Gudi": { "Jubilee Hills Checkpost": 2, "Madhapur": 3 },
+  "Madhapur": { "Peddamma Gudi": 3, "Durgam Cheruvu": 2 },
+  "Durgam Cheruvu": { "Madhapur": 2, "Hitech City": 3 },
+  "Hitech City": { "Durgam Cheruvu": 3, "Raidurg": 2 },
+  "Raidurg": { "Hitech City": 2 },
+
+  // Green Line (MG Bus Station to Falaknuma)
+  "Salarjung Museum": { "MG Bus Station": 2, "Charminar": 3 },
+  "Charminar": { "Salarjung Museum": 3, "Shalibanda": 2 },
+  "Shalibanda": { "Charminar": 2, "Shamshergunj": 3 },
+  "Shamshergunj": { "Shalibanda": 3, "Jangammet": 2 },
+  "Jangammet": { "Shamshergunj": 2, "Falaknuma": 3 },
+  "Falaknuma": { "Jangammet": 3 }
 };
 
 const STATION_LINES = {
-  // Red Line
+  // Red Line (Miyapur to LB Nagar)
   "Miyapur": "Red", "JNTU College": "Red", "KPHB Colony": "Red", "Kukatpally": "Red",
   "Balanagar": "Red", "Moosapet": "Red", "Bharat Nagar": "Red", "Erragadda": "Red",
-  "ESI Hospital": "Red", "SR Nagar": "Red", "Ameerpet": "Red", "Begumpet": "Red",
-  "Prakash Nagar": "Red", "Rasoolpura": "Red", "Paradise": "Red", "Parade Ground": "Red",
-  "Secunderabad West": "Red", "Gandhi Hospital": "Red", "Musheerabad": "Red",
-  "RTC X Roads": "Red", "Chikkadpally": "Red", "Narayanguda": "Red", "Sultan Bazar": "Red",
-  "MG Bus Station": "Red", "Malakpet": "Red", "New Market": "Red", "Musarambagh": "Red",
+  "ESI Hospital": "Red", "SR Nagar": "Red", "Ameerpet": "Red", "Panjagutta": "Red",
+  "Irrum Manzil": "Red", "Khairatabad": "Red", "Lakdi-ka-pul": "Red", "Assembly": "Red",
+  "Nampally": "Red", "Gandhi Bhavan": "Red", "Osmania Medical College": "Red",
+  "MG Bus Station": "Red", "Malakpet": "Red", "New Market": "Red", "Moosarambagh": "Red",
   "Dilsukhnagar": "Red", "Chaitanyapuri": "Red", "Victoria Memorial": "Red", "LB Nagar": "Red",
   
-  // Blue Line
-  "Nagole": "Blue", "Uppal": "Blue", "Survey Settlement": "Blue", "Mettuguda": "Blue",
-  "Tarnaka": "Blue", "Habsiguda": "Blue", "NGRI": "Blue", "Stadium": "Blue",
-  "Arts College": "Blue", "Vidya Nagar": "Blue", "Gandhi Nagar": "Blue", "Osmania Medical": "Blue",
+  // Blue Line (Nagole to Raidurg)
+  "Nagole": "Blue", "Uppal": "Blue", "Stadium": "Blue", "NGRI": "Blue",
+  "Habsiguda": "Blue", "Tarnaka": "Blue", "Mettuguda": "Blue", "Secunderabad East": "Blue",
+  "Parade Ground": "Blue", "Paradise": "Blue", "Rasoolpura": "Blue", "Prakash Nagar": "Blue",
+  "Begumpet": "Blue", "Madhura Nagar": "Blue", "Yousufguda": "Blue",
+  "Jubilee Hills Road No. 5": "Blue", "Jubilee Hills Checkpost": "Blue", "Peddamma Gudi": "Blue",
+  "Madhapur": "Blue", "Durgam Cheruvu": "Blue", "Hitech City": "Blue", "Raidurg": "Blue",
   
-  // Green Line
-  "Jubilee Bus Station": "Green", "Secunderabad": "Green", "East Marredpally": "Green",
-  "Alugadda Bhavi": "Green", "Maredpally": "Green", "Punjagutta": "Green",
-  "Irrum Manzil": "Green", "Khairatabad": "Green", "Lakdikapul": "Green",
-  "Assembly": "Green", "Nampally": "Green", "Gandhi Bhavan": "Green",
-  
-  // Airport Express Line
-  "HITEC City": "Airport", "Raidurg": "Airport", "Financial District": "Airport",
-  "Shamshabad Airport": "Airport", "Cyber Towers": "Airport", "Madhapur": "Airport",
-  "Durgam Cheruvu": "Airport", "Jubilee Hills": "Airport", "Peddamma Gudi": "Airport"
+  // Green Line (MG Bus Station to Falaknuma)
+  "Salarjung Museum": "Green", "Charminar": "Green", "Shalibanda": "Green",
+  "Shamshergunj": "Green", "Jangammet": "Green", "Falaknuma": "Green"
 };
 
 interface PathResult {
@@ -496,22 +480,18 @@ const RouteOptimizer = () => {
             <CardTitle>Metro Lines</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-red-500 rounded"></div>
-                <span className="text-sm">Red Line</span>
+                <span className="text-sm">Red Line (Miyapur to LB Nagar)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-blue-500 rounded"></div>
-                <span className="text-sm">Blue Line</span>
+                <span className="text-sm">Blue Line (Nagole to Raidurg)</span>
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span className="text-sm">Green Line</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-4 h-4 bg-purple-500 rounded"></div>
-                <span className="text-sm">Airport Line</span>
+                <span className="text-sm">Green Line (MG Bus Station to Falaknuma)</span>
               </div>
             </div>
           </CardContent>
