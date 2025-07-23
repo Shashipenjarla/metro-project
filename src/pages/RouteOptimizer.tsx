@@ -48,7 +48,7 @@ const METRO_GRAPH = {
   "Tarnaka": { "Habsiguda": 3, "Mettuguda": 2 },
   "Mettuguda": { "Tarnaka": 2, "Secunderabad East": 3 },
   "Secunderabad East": { "Mettuguda": 3, "Parade Ground": 2 },
-  "Parade Ground": { "Secunderabad East": 2, "Paradise": 3, "JBS Parade Ground": 2 }, // Interchange Blue-Green
+  "Parade Ground": { "Secunderabad East": 2, "Paradise": 3, "JBS Parade Ground": 0 }, // Interchange Blue-Green
   "Paradise": { "Parade Ground": 3, "Rasoolpura": 2 },
   "Rasoolpura": { "Paradise": 2, "Prakash Nagar": 3 },
   "Prakash Nagar": { "Rasoolpura": 3, "Begumpet": 2 },
@@ -64,7 +64,7 @@ const METRO_GRAPH = {
   "Raidurg": { "Hitech City": 2 },
 
   // Green Line (JBS Parade Ground to MG Bus Station)
-  "JBS Parade Ground": { "Secunderabad West": 3 },
+  "JBS Parade Ground": { "Secunderabad West": 3, "Parade Ground": 0 },
   "Secunderabad West": { "JBS Parade Ground": 3, "Gandhi Hospital": 2 },
   "Gandhi Hospital": { "Secunderabad West": 2, "Musheerabad": 3 },
   "Musheerabad": { "Gandhi Hospital": 3, "RTC Cross Roads": 2 },
