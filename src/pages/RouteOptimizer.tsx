@@ -30,7 +30,7 @@ const METRO_GRAPH = {
   "Nampally": { "Assembly": 3, "Gandhi Bhavan": 2 },
   "Gandhi Bhavan": { "Nampally": 2, "Osmania Medical College": 3 },
   "Osmania Medical College": { "Gandhi Bhavan": 3, "MG Bus Station": 2 },
-  "MG Bus Station": { "Osmania Medical College": 2, "Malakpet": 3, "Salarjung Museum": 2 }, // Interchange Red-Green
+  "MG Bus Station": { "Osmania Medical College": 2, "Malakpet": 3, "Sultan Bazaar": 2 }, // Interchange Red-Green
   "Malakpet": { "MG Bus Station": 3, "New Market": 2 },
   "New Market": { "Malakpet": 2, "Moosarambagh": 3 },
   "Moosarambagh": { "New Market": 3, "Dilsukhnagar": 2 },
@@ -48,7 +48,7 @@ const METRO_GRAPH = {
   "Tarnaka": { "Habsiguda": 3, "Mettuguda": 2 },
   "Mettuguda": { "Tarnaka": 2, "Secunderabad East": 3 },
   "Secunderabad East": { "Mettuguda": 3, "Parade Ground": 2 },
-  "Parade Ground": { "Secunderabad East": 2, "Paradise": 3 }, // Interchange Blue-Green
+  "Parade Ground": { "Secunderabad East": 2, "Paradise": 3, "JBS Parade Ground": 2 }, // Interchange Blue-Green
   "Paradise": { "Parade Ground": 3, "Rasoolpura": 2 },
   "Rasoolpura": { "Paradise": 2, "Prakash Nagar": 3 },
   "Prakash Nagar": { "Rasoolpura": 3, "Begumpet": 2 },
@@ -63,13 +63,15 @@ const METRO_GRAPH = {
   "Hitech City": { "Durgam Cheruvu": 3, "Raidurg": 2 },
   "Raidurg": { "Hitech City": 2 },
 
-  // Green Line (MG Bus Station to Falaknuma)
-  "Salarjung Museum": { "MG Bus Station": 2, "Charminar": 3 },
-  "Charminar": { "Salarjung Museum": 3, "Shalibanda": 2 },
-  "Shalibanda": { "Charminar": 2, "Shamshergunj": 3 },
-  "Shamshergunj": { "Shalibanda": 3, "Jangammet": 2 },
-  "Jangammet": { "Shamshergunj": 2, "Falaknuma": 3 },
-  "Falaknuma": { "Jangammet": 3 }
+  // Green Line (JBS Parade Ground to MG Bus Station)
+  "JBS Parade Ground": { "Secunderabad West": 3 },
+  "Secunderabad West": { "JBS Parade Ground": 3, "Gandhi Hospital": 2 },
+  "Gandhi Hospital": { "Secunderabad West": 2, "Musheerabad": 3 },
+  "Musheerabad": { "Gandhi Hospital": 3, "RTC Cross Roads": 2 },
+  "RTC Cross Roads": { "Musheerabad": 2, "Chikkadpally": 3 },
+  "Chikkadpally": { "RTC Cross Roads": 3, "Narayanguda": 2 },
+  "Narayanguda": { "Chikkadpally": 2, "Sultan Bazaar": 3 },
+  "Sultan Bazaar": { "Narayanguda": 3, "MG Bus Station": 2 }
 };
 
 const STATION_LINES = {
@@ -90,9 +92,10 @@ const STATION_LINES = {
   "Jubilee Hills Road No. 5": "Blue", "Jubilee Hills Checkpost": "Blue", "Peddamma Gudi": "Blue",
   "Madhapur": "Blue", "Durgam Cheruvu": "Blue", "Hitech City": "Blue", "Raidurg": "Blue",
   
-  // Green Line (MG Bus Station to Falaknuma)
-  "Salarjung Museum": "Green", "Charminar": "Green", "Shalibanda": "Green",
-  "Shamshergunj": "Green", "Jangammet": "Green", "Falaknuma": "Green"
+  // Green Line (JBS Parade Ground to MG Bus Station)
+  "JBS Parade Ground": "Green", "Secunderabad West": "Green", "Gandhi Hospital": "Green",
+  "Musheerabad": "Green", "RTC Cross Roads": "Green", "Chikkadpally": "Green",
+  "Narayanguda": "Green", "Sultan Bazaar": "Green"
 };
 
 interface PathResult {
@@ -491,7 +494,7 @@ const RouteOptimizer = () => {
               </div>
               <div className="flex items-center gap-2">
                 <div className="w-4 h-4 bg-green-500 rounded"></div>
-                <span className="text-sm">Green Line (MG Bus Station to Falaknuma)</span>
+                <span className="text-sm">Green Line (JBS Parade Ground to MG Bus Station)</span>
               </div>
             </div>
           </CardContent>
