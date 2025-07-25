@@ -10,6 +10,7 @@ import Confirmation from "./pages/Confirmation";
 import SmartCard from "./pages/SmartCard";
 import VirtualCard from "./pages/VirtualCard";
 import RouteOptimizer from "./pages/RouteOptimizer";
+import FoodStalls from "./pages/FoodStalls";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/smart-card" element={<SmartCard />} />
           <Route path="/virtual-card" element={<VirtualCard />} />
           <Route path="/route-optimizer" element={<RouteOptimizer />} />
+          <Route path="/food-stalls" element={<FoodStalls />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
