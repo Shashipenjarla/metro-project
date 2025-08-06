@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed } from "lucide-react";
+import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock } from "lucide-react";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -80,7 +80,7 @@ const Index = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 max-w-8xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6 max-w-full mx-auto">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/booking" : "/auth")}>
             <CardHeader>
               <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
@@ -162,6 +162,23 @@ const Index = () => {
             <CardContent>
               <Button className="w-full">
                 {user ? "Find Route" : "Sign In to Access"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/metro-arrivals" : "/auth")}>
+            <CardHeader>
+              <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
+                <Clock className="h-6 w-6 text-indigo-600" />
+              </div>
+              <CardTitle>Live Arrivals</CardTitle>
+              <CardDescription>
+                Real-time metro arrival notifications with delay status and ETAs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                {user ? "View Arrivals" : "Sign In to Access"}
               </Button>
             </CardContent>
           </Card>
