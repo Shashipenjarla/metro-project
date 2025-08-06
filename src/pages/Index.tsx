@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut } from "lucide-react";
+import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed } from "lucide-react";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -80,7 +80,7 @@ const Index = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 max-w-8xl mx-auto">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/booking" : "/auth")}>
             <CardHeader>
               <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
@@ -162,6 +162,23 @@ const Index = () => {
             <CardContent>
               <Button className="w-full">
                 {user ? "Find Route" : "Sign In to Access"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/food-stalls" : "/auth")}>
+            <CardHeader>
+              <div className="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
+                <UtensilsCrossed className="h-6 w-6 text-red-600" />
+              </div>
+              <CardTitle>Food Stalls</CardTitle>
+              <CardDescription>
+                Order delicious food from stalls at metro stations with UPI payments
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                {user ? "Order Food" : "Sign In to Order"}
               </Button>
             </CardContent>
           </Card>
