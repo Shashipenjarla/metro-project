@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock } from "lucide-react";
+import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock, Heart } from "lucide-react";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -80,7 +80,7 @@ const Index = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-7 gap-6 max-w-full mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-6 max-w-full mx-auto">
           <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/booking" : "/auth")}>
             <CardHeader>
               <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
@@ -196,6 +196,23 @@ const Index = () => {
             <CardContent>
               <Button className="w-full">
                 {user ? "Order Food" : "Sign In to Order"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/accessibility-assistance" : "/auth")}>
+            <CardHeader>
+              <div className="h-12 w-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
+                <Heart className="h-6 w-6 text-pink-600" />
+              </div>
+              <CardTitle>Accessibility</CardTitle>
+              <CardDescription>
+                Request assistance for specially-abled passengers at metro stations
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                {user ? "Get Help" : "Sign In to Access"}
               </Button>
             </CardContent>
           </Card>

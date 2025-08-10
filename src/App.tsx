@@ -11,6 +11,9 @@ import SmartCard from "./pages/SmartCard";
 import VirtualCard from "./pages/VirtualCard";
 import RouteOptimizer from "./pages/RouteOptimizer";
 import MetroArrivals from "./pages/MetroArrivals";
+import AccessibilityAssistance from "./pages/AccessibilityAssistance";
+import AccessibilityRequests from "./pages/AccessibilityRequests";
+import VolunteerSignup from "./pages/VolunteerSignup";
 import FoodStalls from "./pages/FoodStalls";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +34,9 @@ const App = () => (
           <Route path="/virtual-card" element={<VirtualCard />} />
           <Route path="/route-optimizer" element={<RouteOptimizer />} />
           <Route path="/metro-arrivals" element={<MetroArrivals />} />
+          <Route path="/accessibility-assistance" element={<AccessibilityAssistance />} />
+          <Route path="/accessibility-requests" element={<AccessibilityRequests />} />
+          <Route path="/volunteer-signup" element={<VolunteerSignup />} />
           <Route path="/food-stalls" element={<FoodStalls />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
