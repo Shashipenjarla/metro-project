@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      assistance_requests: {
+        Row: {
+          accepted_at: string | null
+          assistance_type: Database["public"]["Enums"]["assistance_type"]
+          completed_at: string | null
+          contact_number: string
+          created_at: string
+          description: string
+          emergency_contact: string | null
+          feedback: string | null
+          id: string
+          priority_level: number | null
+          rating: number | null
+          requester_id: string
+          scheduled_time: string | null
+          special_instructions: string | null
+          station_name: string
+          status: Database["public"]["Enums"]["assistance_status"]
+          updated_at: string
+          volunteer_id: string | null
+        }
+        Insert: {
+          accepted_at?: string | null
+          assistance_type: Database["public"]["Enums"]["assistance_type"]
+          completed_at?: string | null
+          contact_number: string
+          created_at?: string
+          description: string
+          emergency_contact?: string | null
+          feedback?: string | null
+          id?: string
+          priority_level?: number | null
+          rating?: number | null
+          requester_id: string
+          scheduled_time?: string | null
+          special_instructions?: string | null
+          station_name: string
+          status?: Database["public"]["Enums"]["assistance_status"]
+          updated_at?: string
+          volunteer_id?: string | null
+        }
+        Update: {
+          accepted_at?: string | null
+          assistance_type?: Database["public"]["Enums"]["assistance_type"]
+          completed_at?: string | null
+          contact_number?: string
+          created_at?: string
+          description?: string
+          emergency_contact?: string | null
+          feedback?: string | null
+          id?: string
+          priority_level?: number | null
+          rating?: number | null
+          requester_id?: string
+          scheduled_time?: string | null
+          special_instructions?: string | null
+          station_name?: string
+          status?: Database["public"]["Enums"]["assistance_status"]
+          updated_at?: string
+          volunteer_id?: string | null
+        }
+        Relationships: []
+      }
       food_stalls: {
         Row: {
           created_at: string
@@ -198,6 +261,48 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          availability_status: boolean | null
+          created_at: string
+          emergency_contact: string | null
+          full_name: string
+          id: string
+          is_verified_volunteer: boolean | null
+          phone_number: string | null
+          role: Database["public"]["Enums"]["user_role"]
+          specializations: string[] | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          availability_status?: boolean | null
+          created_at?: string
+          emergency_contact?: string | null
+          full_name: string
+          id?: string
+          is_verified_volunteer?: boolean | null
+          phone_number?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          specializations?: string[] | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          availability_status?: boolean | null
+          created_at?: string
+          emergency_contact?: string | null
+          full_name?: string
+          id?: string
+          is_verified_volunteer?: boolean | null
+          phone_number?: string | null
+          role?: Database["public"]["Enums"]["user_role"]
+          specializations?: string[] | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       virtual_card_transactions: {
         Row: {
           amount: number
@@ -286,7 +391,20 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      assistance_status:
+        | "pending"
+        | "accepted"
+        | "in_progress"
+        | "completed"
+        | "cancelled"
+      assistance_type:
+        | "wheelchair"
+        | "visual_impairment"
+        | "hearing_impairment"
+        | "mobility_aid"
+        | "elderly_support"
+        | "other"
+      user_role: "passenger" | "volunteer" | "admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -413,6 +531,23 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      assistance_status: [
+        "pending",
+        "accepted",
+        "in_progress",
+        "completed",
+        "cancelled",
+      ],
+      assistance_type: [
+        "wheelchair",
+        "visual_impairment",
+        "hearing_impairment",
+        "mobility_aid",
+        "elderly_support",
+        "other",
+      ],
+      user_role: ["passenger", "volunteer", "admin"],
+    },
   },
 } as const
