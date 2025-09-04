@@ -15,6 +15,9 @@ import AccessibilityAssistance from "./pages/AccessibilityAssistance";
 import AccessibilityRequests from "./pages/AccessibilityRequests";
 import VolunteerSignup from "./pages/VolunteerSignup";
 import FoodStalls from "./pages/FoodStalls";
+import Feedback from "./pages/Feedback";
+import FeedbackStatus from "./pages/FeedbackStatus";
+import FeedbackAdmin from "./pages/FeedbackAdmin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +41,9 @@ const App = () => (
           <Route path="/accessibility-requests" element={<AccessibilityRequests />} />
           <Route path="/volunteer-signup" element={<VolunteerSignup />} />
           <Route path="/food-stalls" element={<FoodStalls />} />
+          <Route path="/feedback" element={<Feedback />} />
+          <Route path="/feedback-status" element={<FeedbackStatus />} />
+          <Route path="/feedback-admin" element={<FeedbackAdmin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

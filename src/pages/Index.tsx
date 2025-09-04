@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock, Heart } from "lucide-react";
+import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock, Heart, MessageSquare } from "lucide-react";
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -213,6 +213,23 @@ const Index = () => {
             <CardContent>
               <Button className="w-full">
                 {user ? "Get Help" : "Sign In to Access"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/feedback" : "/auth")}>
+            <CardHeader>
+              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
+                <MessageSquare className="h-6 w-6 text-purple-600" />
+              </div>
+              <CardTitle>Feedback</CardTitle>
+              <CardDescription>
+                Share your experience and suggestions for metro services
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                {user ? "Give Feedback" : "Sign In to Give Feedback"}
               </Button>
             </CardContent>
           </Card>

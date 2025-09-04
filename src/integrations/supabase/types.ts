@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -74,6 +74,69 @@ export type Database = {
           status?: Database["public"]["Enums"]["assistance_status"]
           updated_at?: string
           volunteer_id?: string | null
+        }
+        Relationships: []
+      }
+      feedback: {
+        Row: {
+          admin_response: string | null
+          admin_user_id: string | null
+          category: Database["public"]["Enums"]["feedback_category"]
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          description: string
+          feedback_type: Database["public"]["Enums"]["feedback_type"]
+          id: string
+          priority_level: number | null
+          resolved_at: string | null
+          screenshot_url: string | null
+          station_name: string | null
+          status: Database["public"]["Enums"]["feedback_status"]
+          subject: string
+          tracking_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_response?: string | null
+          admin_user_id?: string | null
+          category: Database["public"]["Enums"]["feedback_category"]
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description: string
+          feedback_type: Database["public"]["Enums"]["feedback_type"]
+          id?: string
+          priority_level?: number | null
+          resolved_at?: string | null
+          screenshot_url?: string | null
+          station_name?: string | null
+          status?: Database["public"]["Enums"]["feedback_status"]
+          subject: string
+          tracking_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_response?: string | null
+          admin_user_id?: string | null
+          category?: Database["public"]["Enums"]["feedback_category"]
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          description?: string
+          feedback_type?: Database["public"]["Enums"]["feedback_type"]
+          id?: string
+          priority_level?: number | null
+          resolved_at?: string | null
+          screenshot_url?: string | null
+          station_name?: string | null
+          status?: Database["public"]["Enums"]["feedback_status"]
+          subject?: string
+          tracking_id?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -388,7 +451,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_tracking_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       assistance_status:
@@ -404,6 +470,25 @@ export type Database = {
         | "mobility_aid"
         | "elderly_support"
         | "other"
+      feedback_category:
+        | "metro_service"
+        | "station_facilities"
+        | "ticketing"
+        | "cleanliness"
+        | "accessibility"
+        | "safety_security"
+        | "parking"
+        | "food_services"
+        | "technical_issues"
+        | "staff_behavior"
+        | "other"
+      feedback_status:
+        | "pending"
+        | "in_review"
+        | "under_investigation"
+        | "resolved"
+        | "closed"
+      feedback_type: "complaint" | "suggestion" | "compliment"
       user_role: "passenger" | "volunteer" | "admin"
     }
     CompositeTypes: {
@@ -547,6 +632,27 @@ export const Constants = {
         "elderly_support",
         "other",
       ],
+      feedback_category: [
+        "metro_service",
+        "station_facilities",
+        "ticketing",
+        "cleanliness",
+        "accessibility",
+        "safety_security",
+        "parking",
+        "food_services",
+        "technical_issues",
+        "staff_behavior",
+        "other",
+      ],
+      feedback_status: [
+        "pending",
+        "in_review",
+        "under_investigation",
+        "resolved",
+        "closed",
+      ],
+      feedback_type: ["complaint", "suggestion", "compliment"],
       user_role: ["passenger", "volunteer", "admin"],
     },
   },
