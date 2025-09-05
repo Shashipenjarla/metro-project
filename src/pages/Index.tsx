@@ -3,7 +3,8 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock, Heart, MessageSquare } from "lucide-react";
+import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock, Heart, MessageSquare, Search, Mic } from "lucide-react";
+import VoiceAssistant from '@/components/VoiceAssistant';
 
 const Index = () => {
   const [user, setUser] = useState<any>(null);
@@ -233,6 +234,23 @@ const Index = () => {
               </Button>
             </CardContent>
           </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/lost-and-found" : "/auth")}>
+            <CardHeader>
+              <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
+                <Search className="h-6 w-6 text-orange-600" />
+              </div>
+              <CardTitle>Lost & Found</CardTitle>
+              <CardDescription>
+                Report lost items or find belongings with smart matching
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                {user ? "Report Item" : "Sign In to Report"}
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Quick Stats */}
@@ -250,6 +268,21 @@ const Index = () => {
             <p className="text-muted-foreground">Booking Available</p>
           </div>
         </div>
+
+        {/* Voice Assistant Section */}
+        <section className="py-16 bg-secondary/50">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-4">Voice Assistant</h2>
+              <p className="text-muted-foreground">
+                Speak to get help with metro services in your preferred language
+              </p>
+            </div>
+            <div className="flex justify-center">
+              <VoiceAssistant />
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   );

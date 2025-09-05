@@ -18,6 +18,7 @@ import FoodStalls from "./pages/FoodStalls";
 import Feedback from "./pages/Feedback";
 import FeedbackStatus from "./pages/FeedbackStatus";
 import FeedbackAdmin from "./pages/FeedbackAdmin";
+import LostAndFound from "./pages/LostAndFound";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,9 +38,10 @@ const App = () => (
           <Route path="/virtual-card" element={<VirtualCard />} />
           <Route path="/route-optimizer" element={<RouteOptimizer />} />
           <Route path="/metro-arrivals" element={<MetroArrivals />} />
-          <Route path="/accessibility-assistance" element={<AccessibilityAssistance />} />
-          <Route path="/accessibility-requests" element={<AccessibilityRequests />} />
-          <Route path="/volunteer-signup" element={<VolunteerSignup />} />
+            <Route path="/accessibility-assistance" element={<AccessibilityAssistance />} />
+            <Route path="/accessibility-requests" element={<AccessibilityRequests />} />
+            <Route path="/volunteer-signup" element={<VolunteerSignup />} />
+            <Route path="/lost-and-found" element={<LostAndFound />} />
           <Route path="/food-stalls" element={<FoodStalls />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/feedback-status" element={<FeedbackStatus />} />
