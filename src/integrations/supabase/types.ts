@@ -179,6 +179,72 @@ export type Database = {
         }
         Relationships: []
       }
+      lost_and_found: {
+        Row: {
+          admin_notes: string | null
+          admin_verified: boolean | null
+          contact_email: string | null
+          contact_phone: string | null
+          created_at: string
+          date_incident: string
+          description: string
+          id: string
+          image_url: string | null
+          item_type: Database["public"]["Enums"]["item_type"]
+          keywords: string[] | null
+          report_type: Database["public"]["Enums"]["report_type"]
+          resolved_with: string | null
+          station_name: string
+          status: Database["public"]["Enums"]["item_status"]
+          time_incident: string | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          admin_verified?: boolean | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          date_incident: string
+          description: string
+          id?: string
+          image_url?: string | null
+          item_type: Database["public"]["Enums"]["item_type"]
+          keywords?: string[] | null
+          report_type: Database["public"]["Enums"]["report_type"]
+          resolved_with?: string | null
+          station_name: string
+          status?: Database["public"]["Enums"]["item_status"]
+          time_incident?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          admin_verified?: boolean | null
+          contact_email?: string | null
+          contact_phone?: string | null
+          created_at?: string
+          date_incident?: string
+          description?: string
+          id?: string
+          image_url?: string | null
+          item_type?: Database["public"]["Enums"]["item_type"]
+          keywords?: string[] | null
+          report_type?: Database["public"]["Enums"]["report_type"]
+          resolved_with?: string | null
+          station_name?: string
+          status?: Database["public"]["Enums"]["item_status"]
+          time_incident?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       menu_items: {
         Row: {
           category: string | null
@@ -451,6 +517,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      find_matching_reports: {
+        Args: { report_id: string }
+        Returns: {
+          created_at: string
+          description: string
+          id: string
+          match_score: number
+          report_type: Database["public"]["Enums"]["report_type"]
+          station_name: string
+          title: string
+        }[]
+      }
+      generate_keywords: {
+        Args: { description: string; title: string }
+        Returns: string[]
+      }
       generate_tracking_id: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -489,6 +571,19 @@ export type Database = {
         | "resolved"
         | "closed"
       feedback_type: "complaint" | "suggestion" | "compliment"
+      item_status: "active" | "claimed" | "resolved" | "expired"
+      item_type:
+        | "electronics"
+        | "clothing"
+        | "documents"
+        | "jewelry"
+        | "bags"
+        | "books"
+        | "keys"
+        | "mobile_phone"
+        | "wallet"
+        | "other"
+      report_type: "lost" | "found"
       user_role: "passenger" | "volunteer" | "admin"
     }
     CompositeTypes: {
@@ -653,6 +748,20 @@ export const Constants = {
         "closed",
       ],
       feedback_type: ["complaint", "suggestion", "compliment"],
+      item_status: ["active", "claimed", "resolved", "expired"],
+      item_type: [
+        "electronics",
+        "clothing",
+        "documents",
+        "jewelry",
+        "bags",
+        "books",
+        "keys",
+        "mobile_phone",
+        "wallet",
+        "other",
+      ],
+      report_type: ["lost", "found"],
       user_role: ["passenger", "volunteer", "admin"],
     },
   },
