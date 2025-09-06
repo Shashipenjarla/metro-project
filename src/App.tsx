@@ -19,6 +19,8 @@ import Feedback from "./pages/Feedback";
 import FeedbackStatus from "./pages/FeedbackStatus";
 import FeedbackAdmin from "./pages/FeedbackAdmin";
 import LostAndFound from "./pages/LostAndFound";
+import SmartParking from "./pages/SmartParking";
+import OfflineTickets from "./pages/OfflineTickets";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -46,6 +48,8 @@ const App = () => (
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/feedback-status" element={<FeedbackStatus />} />
           <Route path="/feedback-admin" element={<FeedbackAdmin />} />
+          <Route path="/smart-parking" element={<SmartParking />} />
+          <Route path="/offline-tickets" element={<OfflineTickets />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

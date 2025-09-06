@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock, Heart, MessageSquare, Search, Mic } from "lucide-react";
+import { Train, MapPin, CreditCard, Wallet, Route, User, LogOut, UtensilsCrossed, Clock, Heart, MessageSquare, Search, Mic, Car, QrCode } from "lucide-react";
 import VoiceAssistant from '@/components/VoiceAssistant';
 
 const Index = () => {
@@ -99,19 +99,19 @@ const Index = () => {
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow">
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/smart-parking" : "/auth")}>
             <CardHeader>
               <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                <MapPin className="h-6 w-6 text-blue-600" />
+                <Car className="h-6 w-6 text-blue-600" />
               </div>
-              <CardTitle>Parking Slots</CardTitle>
+              <CardTitle>Smart Parking</CardTitle>
               <CardDescription>
-                Reserve parking for two-wheelers and four-wheelers at metro stations
+                Book parking slots at metro stations with real-time availability
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button variant="outline" className="w-full" disabled>
-                Coming Soon
+              <Button className="w-full">
+                {user ? "Book Parking" : "Sign In to Book"}
               </Button>
             </CardContent>
           </Card>
@@ -248,6 +248,23 @@ const Index = () => {
             <CardContent>
               <Button className="w-full">
                 {user ? "Report Item" : "Sign In to Report"}
+              </Button>
+            </CardContent>
+          </Card>
+
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/offline-tickets" : "/auth")}>
+            <CardHeader>
+              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
+                <QrCode className="h-6 w-6 text-green-600" />
+              </div>
+              <CardTitle>Offline Tickets</CardTitle>
+              <CardDescription>
+                Generate QR tickets that work without internet connection
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full">
+                {user ? "Generate Ticket" : "Sign In to Generate"}
               </Button>
             </CardContent>
           </Card>

@@ -295,6 +295,57 @@ export type Database = {
           },
         ]
       }
+      offline_tickets: {
+        Row: {
+          created_at: string
+          destination_station: string
+          expires_at: string
+          fare_amount: number
+          id: string
+          is_validated: boolean
+          passenger_count: number
+          qr_data: string
+          source_station: string
+          ticket_id: string
+          travel_date: string
+          travel_time: string
+          user_id: string | null
+          validated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          destination_station: string
+          expires_at: string
+          fare_amount: number
+          id?: string
+          is_validated?: boolean
+          passenger_count?: number
+          qr_data: string
+          source_station: string
+          ticket_id: string
+          travel_date: string
+          travel_time: string
+          user_id?: string | null
+          validated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          destination_station?: string
+          expires_at?: string
+          fare_amount?: number
+          id?: string
+          is_validated?: boolean
+          passenger_count?: number
+          qr_data?: string
+          source_station?: string
+          ticket_id?: string
+          travel_date?: string
+          travel_time?: string
+          user_id?: string | null
+          validated_at?: string | null
+        }
+        Relationships: []
+      }
       order_items: {
         Row: {
           created_at: string
@@ -389,6 +440,90 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      parking_availability: {
+        Row: {
+          date: string
+          id: string
+          occupied_slots: number
+          station_id: string
+          station_name: string
+          total_slots: number
+          updated_at: string
+          vehicle_type: string
+        }
+        Insert: {
+          date?: string
+          id?: string
+          occupied_slots?: number
+          station_id: string
+          station_name: string
+          total_slots: number
+          updated_at?: string
+          vehicle_type: string
+        }
+        Update: {
+          date?: string
+          id?: string
+          occupied_slots?: number
+          station_id?: string
+          station_name?: string
+          total_slots?: number
+          updated_at?: string
+          vehicle_type?: string
+        }
+        Relationships: []
+      }
+      parking_bookings: {
+        Row: {
+          amount: number
+          booking_date: string
+          created_at: string
+          end_time: string
+          id: string
+          payment_status: string
+          slot_number: number
+          start_time: string
+          station_id: string
+          station_name: string
+          status: string
+          updated_at: string
+          user_id: string
+          vehicle_type: string
+        }
+        Insert: {
+          amount: number
+          booking_date: string
+          created_at?: string
+          end_time: string
+          id?: string
+          payment_status?: string
+          slot_number: number
+          start_time: string
+          station_id: string
+          station_name: string
+          status?: string
+          updated_at?: string
+          user_id: string
+          vehicle_type: string
+        }
+        Update: {
+          amount?: number
+          booking_date?: string
+          created_at?: string
+          end_time?: string
+          id?: string
+          payment_status?: string
+          slot_number?: number
+          start_time?: string
+          station_id?: string
+          station_name?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+          vehicle_type?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
