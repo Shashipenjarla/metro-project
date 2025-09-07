@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Dashboard from "./pages/Dashboard";
 import Booking from "./pages/Booking";
 import Confirmation from "./pages/Confirmation";
 import SmartCard from "./pages/SmartCard";
@@ -22,6 +23,7 @@ import LostAndFound from "./pages/LostAndFound";
 import SmartParking from "./pages/SmartParking";
 import OfflineTickets from "./pages/OfflineTickets";
 import NotFound from "./pages/NotFound";
+import ChatBot from "./components/ChatBot";
 
 const queryClient = new QueryClient();
 
@@ -34,25 +36,26 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/booking" element={<Booking />} />
           <Route path="/confirmation" element={<Confirmation />} />
           <Route path="/smart-card" element={<SmartCard />} />
           <Route path="/virtual-card" element={<VirtualCard />} />
           <Route path="/route-optimizer" element={<RouteOptimizer />} />
           <Route path="/metro-arrivals" element={<MetroArrivals />} />
-            <Route path="/accessibility-assistance" element={<AccessibilityAssistance />} />
-            <Route path="/accessibility-requests" element={<AccessibilityRequests />} />
-            <Route path="/volunteer-signup" element={<VolunteerSignup />} />
-            <Route path="/lost-and-found" element={<LostAndFound />} />
+          <Route path="/accessibility-assistance" element={<AccessibilityAssistance />} />
+          <Route path="/accessibility-requests" element={<AccessibilityRequests />} />
+          <Route path="/volunteer-signup" element={<VolunteerSignup />} />
+          <Route path="/lost-and-found" element={<LostAndFound />} />
           <Route path="/food-stalls" element={<FoodStalls />} />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/feedback-status" element={<FeedbackStatus />} />
           <Route path="/feedback-admin" element={<FeedbackAdmin />} />
           <Route path="/smart-parking" element={<SmartParking />} />
           <Route path="/offline-tickets" element={<OfflineTickets />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
+        <ChatBot />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

@@ -81,193 +81,105 @@ const Index = () => {
         </div>
 
         {/* Feature Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-8 gap-6 max-w-full mx-auto">
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/booking" : "/auth")}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {/* Dashboard Card for authenticated users */}
+          {user && (
+            <Card className="feature-card bg-gradient-primary text-primary-foreground border-0" onClick={() => navigate("/dashboard")}>
+              <CardHeader>
+                <div className="h-12 w-12 bg-white/20 rounded-lg flex items-center justify-center mb-4">
+                  <User className="h-6 w-6 text-white" />
+                </div>
+                <CardTitle>Dashboard</CardTitle>
+                <CardDescription className="text-primary-foreground/80">
+                  View your trips, bookings, and account overview
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="secondary" className="w-full">
+                  Go to Dashboard
+                </Button>
+              </CardContent>
+            </Card>
+          )}
+          <Card className="feature-card cursor-pointer group" onClick={() => navigate(user ? "/booking" : "/auth")}>
             <CardHeader>
-              <div className="h-12 w-12 bg-primary/10 rounded-lg flex items-center justify-center mb-4">
-                <Train className="h-6 w-6 text-primary" />
+              <div className="h-12 w-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center mb-4 group-hover:shadow-glow transition-smooth">
+                <Train className="h-6 w-6 text-blue-600 dark:text-blue-400" />
               </div>
-              <CardTitle>Book Tickets</CardTitle>
+              <CardTitle className="group-hover:text-primary transition-smooth">Book Tickets</CardTitle>
               <CardDescription>
                 Select stations, choose travel time, and book your metro tickets instantly
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">
+              <Button className="w-full bg-gradient-primary hover:shadow-glow transition-smooth">
                 {user ? "Book Now" : "Sign In to Book"}
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/smart-parking" : "/auth")}>
+          <Card className="feature-card cursor-pointer group" onClick={() => navigate(user ? "/smart-parking" : "/auth")}>
             <CardHeader>
-              <div className="h-12 w-12 bg-blue-100 rounded-lg flex items-center justify-center mb-4">
-                <Car className="h-6 w-6 text-blue-600" />
+              <div className="h-12 w-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center mb-4 group-hover:shadow-glow transition-smooth">
+                <Car className="h-6 w-6 text-green-600 dark:text-green-400" />
               </div>
-              <CardTitle>Smart Parking</CardTitle>
+              <CardTitle className="group-hover:text-primary transition-smooth">Smart Parking</CardTitle>
               <CardDescription>
                 Book parking slots at metro stations with real-time availability
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">
+              <Button variant="outline" className="w-full hover:bg-primary hover:text-primary-foreground transition-smooth">
                 {user ? "Book Parking" : "Sign In to Book"}
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/smart-card" : "/auth")}>
+          <Card className="feature-card cursor-pointer group" onClick={() => navigate(user ? "/smart-card" : "/auth")}>
             <CardHeader>
-              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                <CreditCard className="h-6 w-6 text-green-600" />
+              <div className="h-12 w-12 bg-purple-100 dark:bg-purple-900/30 rounded-lg flex items-center justify-center mb-4 group-hover:shadow-glow transition-smooth">
+                <CreditCard className="h-6 w-6 text-purple-600 dark:text-purple-400" />
               </div>
-              <CardTitle>Smart Card</CardTitle>
+              <CardTitle className="group-hover:text-primary transition-smooth">Smart Card</CardTitle>
               <CardDescription>
                 Check balance and recharge your metro smart card digitally
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button className="w-full">
+              <Button variant="outline" className="w-full hover:bg-primary hover:text-primary-foreground transition-smooth">
                 {user ? "Manage Card" : "Sign In to Access"}
               </Button>
             </CardContent>
           </Card>
 
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/virtual-card" : "/auth")}>
-            <CardHeader>
-              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                <Wallet className="h-6 w-6 text-purple-600" />
-              </div>
-              <CardTitle>Virtual E-Card</CardTitle>
-              <CardDescription>
-                Create a digital contactless metro card with QR code for seamless travel
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                {user ? "Create E-Card" : "Sign In to Create"}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/route-optimizer" : "/auth")}>
-            <CardHeader>
-              <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                <Route className="h-6 w-6 text-orange-600" />
-              </div>
-              <CardTitle>Route Optimizer</CardTitle>
-              <CardDescription>
-                Find the shortest path between stations using smart algorithms
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                {user ? "Find Route" : "Sign In to Access"}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/metro-arrivals" : "/auth")}>
-            <CardHeader>
-              <div className="h-12 w-12 bg-indigo-100 rounded-lg flex items-center justify-center mb-4">
-                <Clock className="h-6 w-6 text-indigo-600" />
-              </div>
-              <CardTitle>Live Arrivals</CardTitle>
-              <CardDescription>
-                Real-time metro arrival notifications with delay status and ETAs
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                {user ? "View Arrivals" : "Sign In to Access"}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/food-stalls" : "/auth")}>
-            <CardHeader>
-              <div className="h-12 w-12 bg-red-100 rounded-lg flex items-center justify-center mb-4">
-                <UtensilsCrossed className="h-6 w-6 text-red-600" />
-              </div>
-              <CardTitle>Food Stalls</CardTitle>
-              <CardDescription>
-                Order delicious food from stalls at metro stations with UPI payments
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                {user ? "Order Food" : "Sign In to Order"}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/accessibility-assistance" : "/auth")}>
-            <CardHeader>
-              <div className="h-12 w-12 bg-pink-100 rounded-lg flex items-center justify-center mb-4">
-                <Heart className="h-6 w-6 text-pink-600" />
-              </div>
-              <CardTitle>Accessibility</CardTitle>
-              <CardDescription>
-                Request assistance for specially-abled passengers at metro stations
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                {user ? "Get Help" : "Sign In to Access"}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/feedback" : "/auth")}>
-            <CardHeader>
-              <div className="h-12 w-12 bg-purple-100 rounded-lg flex items-center justify-center mb-4">
-                <MessageSquare className="h-6 w-6 text-purple-600" />
-              </div>
-              <CardTitle>Feedback</CardTitle>
-              <CardDescription>
-                Share your experience and suggestions for metro services
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                {user ? "Give Feedback" : "Sign In to Give Feedback"}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/lost-and-found" : "/auth")}>
-            <CardHeader>
-              <div className="h-12 w-12 bg-orange-100 rounded-lg flex items-center justify-center mb-4">
-                <Search className="h-6 w-6 text-orange-600" />
-              </div>
-              <CardTitle>Lost & Found</CardTitle>
-              <CardDescription>
-                Report lost items or find belongings with smart matching
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                {user ? "Report Item" : "Sign In to Report"}
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="hover:shadow-lg transition-shadow cursor-pointer" onClick={() => navigate(user ? "/offline-tickets" : "/auth")}>
-            <CardHeader>
-              <div className="h-12 w-12 bg-green-100 rounded-lg flex items-center justify-center mb-4">
-                <QrCode className="h-6 w-6 text-green-600" />
-              </div>
-              <CardTitle>Offline Tickets</CardTitle>
-              <CardDescription>
-                Generate QR tickets that work without internet connection
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button className="w-full">
-                {user ? "Generate Ticket" : "Sign In to Generate"}
-              </Button>
-            </CardContent>
-          </Card>
+          {/* Continue with remaining feature cards using same beautiful pattern */}
+          {[
+            { path: "/virtual-card", icon: Wallet, title: "Virtual E-Card", desc: "Create a digital contactless metro card with QR code for seamless travel", color: "orange" },
+            { path: "/route-optimizer", icon: Route, title: "Route Optimizer", desc: "Find the shortest path between stations using smart algorithms", color: "red" },
+            { path: "/metro-arrivals", icon: Clock, title: "Live Arrivals", desc: "Real-time metro arrival notifications with delay status and ETAs", color: "indigo" },
+            { path: "/food-stalls", icon: UtensilsCrossed, title: "Food Stalls", desc: "Order delicious food from stalls at metro stations with UPI payments", color: "pink" },
+            { path: "/accessibility-assistance", icon: Heart, title: "Accessibility", desc: "Request assistance for specially-abled passengers at metro stations", color: "teal" },
+            { path: "/feedback", icon: MessageSquare, title: "Feedback", desc: "Share your experience and suggestions for metro services", color: "violet" },
+            { path: "/lost-and-found", icon: Search, title: "Lost & Found", desc: "Report lost items or find belongings with smart matching", color: "amber" },
+            { path: "/offline-tickets", icon: QrCode, title: "Offline Tickets", desc: "Generate QR tickets that work without internet connection", color: "emerald" },
+            { path: "/volunteer-signup", icon: User, title: "Volunteer", desc: "Join our volunteer program to help fellow passengers", color: "cyan" },
+            { path: "/voice-assistant", icon: Mic, title: "Voice Assistant", desc: "Talk to our AI assistant for hands-free metro help", color: "rose" }
+          ].map((feature, index) => (
+            <Card key={index} className="feature-card cursor-pointer group" onClick={() => navigate(user ? feature.path : "/auth")}>
+              <CardHeader>
+                <div className={`h-12 w-12 bg-${feature.color}-100 dark:bg-${feature.color}-900/30 rounded-lg flex items-center justify-center mb-4 group-hover:shadow-glow transition-smooth`}>
+                  <feature.icon className={`h-6 w-6 text-${feature.color}-600 dark:text-${feature.color}-400`} />
+                </div>
+                <CardTitle className="group-hover:text-primary transition-smooth">{feature.title}</CardTitle>
+                <CardDescription>{feature.desc}</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button variant="outline" className="w-full hover:bg-primary hover:text-primary-foreground transition-smooth">
+                  {user ? "Access Feature" : "Sign In to Access"}
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
         </div>
 
         {/* Quick Stats */}
