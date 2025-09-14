@@ -144,6 +144,109 @@ All colors MUST be HSL.
 }
 
 @layer components {
+  /* Enhanced glass morphism */
+  .glass {
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .glass-dark {
+    background: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Metro feature cards */
+  .metro-card {
+    @apply relative overflow-hidden rounded-2xl bg-white/90 dark:bg-neutral-800/90 
+           p-6 shadow-metro transition-all duration-300 
+           hover:-translate-y-1 hover:shadow-metro-lg;
+  }
+
+  .metro-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--line-color, #D32F2F), transparent);
+  }
+
+  /* Metro line borders */
+  .border-metro-red {
+    border-left: 4px solid #D32F2F;
+  }
+
+  .border-metro-blue {
+    border-left: 4px solid #1565C0;
+  }
+
+  .border-metro-green {
+    border-left: 4px solid #2E7D32;
+  }
+
+  /* Metro gradients */
+  .bg-gradient-metro-red {
+    background: linear-gradient(135deg, #D32F2F, #F44336);
+  }
+
+  .bg-gradient-metro-blue {
+    background: linear-gradient(135deg, #1565C0, #2196F3);
+  }
+
+  .bg-gradient-metro-green {
+    background: linear-gradient(135deg, #2E7D32, #4CAF50);
+  }
+
+  /* Shimmer effect for CTAs */
+  .shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+  }
+
+  /* Focus ring enhancement */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-metro-blue;
+  }
+
+  /* Floating animation */
+  .float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Hero section */
+  .hero-gradient {
+    background: linear-gradient(
+      135deg,
+      rgba(21, 101, 192, 0.1) 0%,
+      rgba(211, 47, 47, 0.1) 50%,
+      rgba(46, 125, 50, 0.1) 100%
+    );
+  }
+
+  /* Enhanced transitions */
+  .transition-metro {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
   /* Gradient backgrounds */
   .bg-gradient-primary {
     background: var(--gradient-primary);
@@ -181,14 +284,5 @@ All colors MUST be HSL.
   /* Feature card hover effects */
   .feature-card {
     @apply transition-smooth hover:shadow-elegant hover:-translate-y-1;
-  }
-
-  /* Glass morphism effect */
-  .glass {
-    @apply bg-white/10 backdrop-blur-lg border border-white/20;
-  }
-
-  .glass-dark {
-    @apply bg-black/10 backdrop-blur-lg border border-white/10;
   }
 }
