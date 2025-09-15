@@ -23,7 +23,7 @@ import LostAndFound from "./pages/LostAndFound";
 import SmartParking from "./pages/SmartParking";
 import OfflineTickets from "./pages/OfflineTickets";
 import NotFound from "./pages/NotFound";
-import ChatBot from "./components/ChatBot";
+import FloatingChat from "./components/FloatingChat";
 
 const queryClient = new QueryClient();
 
@@ -55,7 +55,7 @@ const App = () => (
           <Route path="/offline-tickets" element={<OfflineTickets />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <ChatBot />
+        <FloatingChat />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
