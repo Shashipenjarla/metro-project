@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { ArrowLeft, MapPin, Clock, IndianRupee, Route, Navigation } from "lucide-react";
+import { MapPin, Clock, IndianRupee, Route, Navigation, Zap, TrendingUp } from "lucide-react";
+import StationSelector, { METRO_STATIONS } from "@/components/StationSelector";
+import PageLayout from "@/components/PageLayout";
 
 // Metro stations with connections and weights (time in minutes)
 const METRO_GRAPH = {
@@ -293,82 +294,54 @@ const RouteOptimizer = () => {
   };
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate("/")} 
-          className="mb-4"
-        >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Back to Home
-        </Button>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Route className="h-5 w-5" />
-              Metro Route Optimizer
+    <PageLayout title="Route Optimizer" subtitle="Find the shortest path between metro stations using advanced algorithms">
+      <div className="max-w-5xl mx-auto space-y-8">
+        <Card className="glass-effect border-white/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-metro-red/10 via-metro-blue/10 to-metro-green/10">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Route className="h-6 w-6 text-metro-blue" />
+              Smart Route Planner
             </CardTitle>
-            <CardDescription>
-              Find the shortest path between metro stations using Dijkstra's Algorithm
+            <CardDescription className="text-base">
+              Find the optimal path using Dijkstra's Algorithm with real-time fare calculation and transfer optimization
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Source Station</label>
-                <Select value={sourceStation} onValueChange={setSourceStation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select source station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
-                        <div className="flex items-center gap-2">
-                          <Badge className={`text-xs ${getLineColor(STATION_LINES[station])}`}>
-                            {STATION_LINES[station]}
-                          </Badge>
-                          {station}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <label className="text-sm font-medium">Destination Station</label>
-                <Select value={destinationStation} onValueChange={setDestinationStation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select destination station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station} value={station}>
-                        <div className="flex items-center gap-2">
-                          <Badge className={`text-xs ${getLineColor(STATION_LINES[station])}`}>
-                            {STATION_LINES[station]}
-                          </Badge>
-                          {station}
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <CardContent className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <StationSelector
+                value={sourceStation}
+                onValueChange={setSourceStation}
+                label="From Station"
+                placeholder="Search source station..."
+              />
+              
+              <StationSelector
+                value={destinationStation}
+                onValueChange={setDestinationStation}
+                label="To Station"
+                placeholder="Search destination station..."
+              />
             </div>
 
-            <div className="flex gap-2">
+            <div className="flex gap-4">
               <Button 
                 onClick={findOptimalRoute} 
                 disabled={loading || !sourceStation || !destinationStation}
-                className="flex-1"
+                className="flex-1 h-12 text-lg font-semibold bg-gradient-to-r from-metro-red to-metro-blue hover:from-metro-red/90 hover:to-metro-blue/90 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
-                <Navigation className="h-4 w-4 mr-2" />
-                {loading ? "Finding Route..." : "Find Optimal Route"}
+                {loading ? (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                    Finding Route...
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-5 w-5" />
+                    Find Optimal Route
+                  </div>
+                )}
               </Button>
-              <Button variant="outline" onClick={clearRoute}>
+              <Button variant="outline" onClick={clearRoute} className="h-12 px-6">
                 Clear
               </Button>
             </div>
@@ -377,38 +350,38 @@ const RouteOptimizer = () => {
 
         {/* Route Result */}
         {pathResult && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
+          <Card className="glass-effect border-white/20 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-metro-green/10 to-metro-red/10">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <TrendingUp className="h-6 w-6 text-metro-green" />
                 Optimal Route Found
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-6">
               {/* Route Summary */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{pathResult.distance}</div>
-                  <div className="text-sm text-muted-foreground">Stations</div>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-primary flex items-center justify-center gap-1">
-                    <Clock className="h-5 w-5" />
+                <Card className="bg-gradient-to-br from-metro-blue/20 to-metro-blue/10 border-metro-blue/30 p-4 text-center">
+                  <div className="text-3xl font-bold text-metro-blue">{pathResult.distance}</div>
+                  <div className="text-sm text-muted-foreground font-medium">Stations</div>
+                </Card>
+                <Card className="bg-gradient-to-br from-metro-green/20 to-metro-green/10 border-metro-green/30 p-4 text-center">
+                  <div className="text-3xl font-bold text-metro-green flex items-center justify-center gap-1">
+                    <Clock className="h-6 w-6" />
                     {pathResult.totalTime}
                   </div>
-                  <div className="text-sm text-muted-foreground">Minutes</div>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-primary flex items-center justify-center gap-1">
-                    <IndianRupee className="h-5 w-5" />
+                  <div className="text-sm text-muted-foreground font-medium">Minutes</div>
+                </Card>
+                <Card className="bg-gradient-to-br from-accent-yellow/20 to-accent-yellow/10 border-accent-yellow/30 p-4 text-center">
+                  <div className="text-3xl font-bold text-accent-yellow flex items-center justify-center gap-1">
+                    <IndianRupee className="h-6 w-6" />
                     {pathResult.fare}
                   </div>
-                  <div className="text-sm text-muted-foreground">Fare</div>
-                </div>
-                <div className="text-center p-4 bg-muted rounded-lg">
-                  <div className="text-2xl font-bold text-primary">{pathResult.transfers}</div>
-                  <div className="text-sm text-muted-foreground">Transfers</div>
-                </div>
+                  <div className="text-sm text-muted-foreground font-medium">Fare</div>
+                </Card>
+                <Card className="bg-gradient-to-br from-metro-red/20 to-metro-red/10 border-metro-red/30 p-4 text-center">
+                  <div className="text-3xl font-bold text-metro-red">{pathResult.transfers}</div>
+                  <div className="text-sm text-muted-foreground font-medium">Transfers</div>
+                </Card>
               </div>
 
               {/* Route Path */}
@@ -500,7 +473,7 @@ const RouteOptimizer = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

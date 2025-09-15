@@ -8,7 +8,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Users, Car, Bike } from "lucide-react";
+import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock } from "lucide-react";
+import StationSelector from "@/components/StationSelector";
+import PageLayout from "@/components/PageLayout";
 
 interface Station {
   id: string;
@@ -224,98 +226,86 @@ const Booking = () => {
   const parkingStations = stations.filter(station => station.has_parking);
 
   return (
-    <div className="min-h-screen bg-background p-4">
-      <div className="max-w-2xl mx-auto">
-        <Button 
-          variant="outline" 
-          onClick={() => navigate("/")} 
-          className="mb-4"
-        >
-          ← Back to Home
-        </Button>
-        
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MapPin className="h-5 w-5" />
+    <PageLayout title="Book Metro Tickets" subtitle="Quick and easy metro ticket booking with smart pricing">
+      <div className="max-w-3xl mx-auto space-y-6">
+        <Card className="glass-effect border-white/20 shadow-lg hover:shadow-xl transition-all duration-300">
+          <CardHeader className="bg-gradient-to-r from-metro-blue/10 via-metro-green/10 to-metro-red/10 rounded-t-lg">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Ticket className="h-6 w-6 text-metro-blue" />
               Book Metro Ticket
             </CardTitle>
-            <CardDescription>
-              Select your journey details and book your metro ticket
+            <CardDescription className="text-base">
+              Select your journey details and book your metro ticket with real-time fare calculation
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Station Selection */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label>Source Station</Label>
-                <Select value={sourceStation} onValueChange={setSourceStation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select source station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station.id} value={station.id}>
-                        {station.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Destination Station</Label>
-                <Select value={destinationStation} onValueChange={setDestinationStation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select destination station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {stations.map((station) => (
-                      <SelectItem key={station.id} value={station.id}>
-                        {station.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <StationSelector
+                value={sourceStation}
+                onValueChange={setSourceStation}
+                label="From Station"
+                placeholder="Search source station..."
+              />
+              
+              <StationSelector
+                value={destinationStation}
+                onValueChange={setDestinationStation}
+                label="To Station"
+                placeholder="Search destination station..."
+              />
             </div>
 
             {/* Fare Preview */}
             {sourceStation && destinationStation && sourceStation !== destinationStation && (
-              <Card className="bg-muted/50">
-                <CardContent className="pt-4">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Fare per passenger:</span>
-                    <span className="font-semibold">₹{calculateFare()}</span>
+              <Card className="bg-gradient-to-r from-metro-green/10 to-metro-blue/10 border-metro-green/20">
+                <CardContent className="pt-6">
+                  <div className="flex items-center gap-2 mb-4">
+                    <CreditCard className="h-5 w-5 text-metro-green" />
+                    <h3 className="text-lg font-semibold">Fare Calculation</h3>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-muted-foreground">Total for {passengerCount} passenger(s):</span>
-                    <span className="font-bold text-lg">₹{calculateFare() * passengerCount}</span>
+                  <div className="space-y-3">
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-muted-foreground">Fare per passenger:</span>
+                      <span className="font-semibold text-lg">₹{calculateFare()}</span>
+                    </div>
+                    <div className="flex justify-between items-center pt-2 border-t">
+                      <span className="font-medium">Total for {passengerCount} passenger(s):</span>
+                      <span className="font-bold text-2xl text-metro-green">₹{calculateFare() * passengerCount}</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             )}
 
             {/* Date and Time */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-2">
-                <Label htmlFor="travel-date">Travel Date</Label>
+                <Label htmlFor="travel-date" className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Travel Date
+                </Label>
                 <Input
                   id="travel-date"
                   type="date"
                   value={travelDate}
                   onChange={(e) => setTravelDate(e.target.value)}
                   min={new Date().toISOString().split('T')[0]}
+                  className="h-12"
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="travel-time">Travel Time</Label>
+                <Label htmlFor="travel-time" className="flex items-center gap-2">
+                  <Clock className="h-4 w-4" />
+                  Travel Time
+                </Label>
                 <Input
                   id="travel-time"
                   type="time"
                   value={travelTime}
                   onChange={(e) => setTravelTime(e.target.value)}
+                  className="h-12"
                 />
               </div>
             </div>
@@ -326,18 +316,18 @@ const Booking = () => {
                 <Users className="h-4 w-4" />
                 Number of Passengers
               </Label>
-              <Select value={passengerCount.toString()} onValueChange={(value) => setPassengerCount(parseInt(value))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map((count) => (
-                    <SelectItem key={count} value={count.toString()}>
-                      {count} Passenger{count > 1 ? 's' : ''}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-6 gap-3">
+                {[1, 2, 3, 4, 5, 6].map((count) => (
+                  <Button
+                    key={count}
+                    variant={passengerCount === count ? "default" : "outline"}
+                    onClick={() => setPassengerCount(count)}
+                    className="h-12 text-lg font-semibold"
+                  >
+                    {count}
+                  </Button>
+                ))}
+              </div>
             </div>
 
             {/* Parking Option */}
@@ -409,7 +399,7 @@ const Booking = () => {
           </CardContent>
         </Card>
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

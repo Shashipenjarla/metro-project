@@ -7,8 +7,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Car, Bike, Clock, CheckCircle, AlertCircle } from "lucide-react";
+import { Calendar, MapPin, Car, Bike, Clock, CheckCircle, AlertCircle, ParkingCircle, CreditCard } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import PageLayout from "@/components/PageLayout";
+import StationSelector, { METRO_STATIONS } from "@/components/StationSelector";
 
 interface ParkingAvailability {
   id: string;
@@ -218,25 +220,20 @@ const SmartParking = () => {
   }, [] as ParkingAvailability[]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted p-4">
-      <div className="max-w-6xl mx-auto space-y-6">
-        {/* Header */}
-        <div className="text-center space-y-2">
-          <h1 className="text-4xl font-bold tracking-tight">Smart Parking</h1>
-          <p className="text-muted-foreground">Book parking slots at metro stations</p>
-        </div>
+    <PageLayout title="Smart Parking" subtitle="Reserve parking slots at metro stations with real-time availability">
+      <div className="space-y-8">
 
         {/* Parking Availability Grid */}
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {stationsWithParking.map((station) => {
             const twoWheeler = parkingData.find(p => p.station_id === station.station_id && p.vehicle_type === 'two_wheeler');
             const fourWheeler = parkingData.find(p => p.station_id === station.station_id && p.vehicle_type === 'four_wheeler');
             
             return (
-              <Card key={station.station_id} className="overflow-hidden">
-                <CardHeader className="pb-3">
+              <Card key={station.station_id} className="overflow-hidden glass-effect border-white/20 hover:shadow-lg transition-all duration-300">
+                <CardHeader className="pb-3 bg-gradient-to-r from-metro-blue/10 to-metro-green/10">
                   <div className="flex items-center gap-2">
-                    <MapPin className="h-5 w-5 text-primary" />
+                    <ParkingCircle className="h-5 w-5 text-metro-blue" />
                     <CardTitle className="text-lg">{station.station_name}</CardTitle>
                   </div>
                 </CardHeader>
@@ -276,14 +273,14 @@ const SmartParking = () => {
         </div>
 
         {/* Booking Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
+        <Card className="glass-effect border-white/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-metro-green/10 to-metro-blue/10">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Calendar className="h-6 w-6 text-metro-green" />
               Book Parking Slot
             </CardTitle>
-            <CardDescription>
-              Reserve your parking spot in advance
+            <CardDescription className="text-base">
+              Reserve your parking spot in advance with smart pricing
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -329,13 +326,18 @@ const SmartParking = () => {
               </div>
 
               <div className="space-y-2">
-                <Label>Amount</Label>
-                <div className="text-2xl font-bold text-primary">
-                  ₹{calculateAmount()}
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  {vehicleType === 'two_wheeler' ? '₹10/hour' : '₹20/hour'}
-                </p>
+                <Label className="flex items-center gap-2">
+                  <CreditCard className="h-4 w-4" />
+                  Amount
+                </Label>
+                <Card className="bg-gradient-to-r from-metro-green/10 to-metro-blue/10 border-metro-green/20 p-4">
+                  <div className="text-3xl font-bold text-metro-green">
+                    ₹{calculateAmount()}
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {vehicleType === 'two_wheeler' ? '₹10/hour' : '₹20/hour'}
+                  </p>
+                </Card>
               </div>
 
               <div className="space-y-2">
@@ -362,20 +364,30 @@ const SmartParking = () => {
             <Button 
               onClick={handleBooking} 
               disabled={isLoading} 
-              className="w-full"
+              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-metro-green to-metro-blue hover:from-metro-green/90 hover:to-metro-blue/90 transition-all duration-300 shadow-lg hover:shadow-xl"
               size="lg"
             >
-              {isLoading ? "Booking..." : "Book Parking Slot"}
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Booking...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <ParkingCircle className="h-5 w-5" />
+                  Book Parking Slot - ₹{calculateAmount()}
+                </div>
+              )}
             </Button>
           </CardContent>
         </Card>
 
         {/* My Bookings */}
         {userBookings.length > 0 && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5" />
+          <Card className="glass-effect border-white/20 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-metro-blue/10 to-metro-green/10">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <CheckCircle className="h-6 w-6 text-metro-blue" />
                 My Parking Bookings
               </CardTitle>
             </CardHeader>
@@ -403,7 +415,7 @@ const SmartParking = () => {
           </Card>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 };
 

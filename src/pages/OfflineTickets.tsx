@@ -2,14 +2,15 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { toast } from "@/hooks/use-toast";
-import { Download, QrCode, Wifi, WifiOff, CheckCircle, AlertCircle, Scan } from "lucide-react";
+import { Download, QrCode, Wifi, WifiOff, CheckCircle, AlertCircle, Scan, Ticket, Smartphone } from "lucide-react";
 import QRCode from "qrcode";
+import StationSelector, { METRO_STATIONS } from "@/components/StationSelector";
+import PageLayout from "@/components/PageLayout";
 
 interface Station {
   id: string;
@@ -347,73 +348,57 @@ Expires: ${new Date(ticket.expires_at).toLocaleDateString()}
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted p-4">
-      <div className="max-w-4xl mx-auto space-y-6">
-        {/* Header with connection status */}
-        <div className="text-center space-y-2">
-          <div className="flex items-center justify-center gap-2">
-            <h1 className="text-4xl font-bold tracking-tight">Offline QR Tickets</h1>
-            {isOnline ? (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Wifi className="h-3 w-3" />
-                Online
-              </Badge>
-            ) : (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <WifiOff className="h-3 w-3" />
-                Offline
-              </Badge>
-            )}
-          </div>
-          <p className="text-muted-foreground">
-            Generate tickets offline and validate when connected
-          </p>
-        </div>
+    <PageLayout 
+      title="Offline QR Tickets" 
+      subtitle="Generate tickets offline and validate when connected"
+      showBackButton={false}
+    >
+      <div className="max-w-4xl mx-auto space-y-8">
+        {/* Connection Status Banner */}
+        <Card className={`glass-effect border-white/20 ${isOnline ? 'bg-metro-green/10' : 'bg-accent-yellow/10'}`}>
+          <CardContent className="p-4">
+            <div className="flex items-center justify-center gap-3">
+              {isOnline ? (
+                <>
+                  <Wifi className="h-5 w-5 text-metro-green" />
+                  <span className="font-medium text-metro-green">Connected - Full functionality available</span>
+                </>
+              ) : (
+                <>
+                  <WifiOff className="h-5 w-5 text-accent-yellow" />
+                  <span className="font-medium text-accent-yellow">Offline Mode - Generate tickets only</span>
+                </>
+              )}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Generate Ticket Form */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <QrCode className="h-5 w-5" />
+        <Card className="glass-effect border-white/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-metro-blue/10 to-metro-green/10">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Smartphone className="h-6 w-6 text-metro-blue" />
               Generate Offline Ticket
             </CardTitle>
-            <CardDescription>
-              Create a QR ticket that works even without internet connection
+            <CardDescription className="text-base">
+              Create a QR ticket that works even without internet connection - perfect for underground travel
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="source">From Station</Label>
-                <Select value={sourceStation} onValueChange={setSourceStation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select source station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {METRO_STATIONS.map((station) => (
-                      <SelectItem key={station.id} value={station.id}>
-                        {station.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="destination">To Station</Label>
-                <Select value={destinationStation} onValueChange={setDestinationStation}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select destination station" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {METRO_STATIONS.map((station) => (
-                      <SelectItem key={station.id} value={station.id}>
-                        {station.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+          <CardContent className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2">
+              <StationSelector
+                value={sourceStation}
+                onValueChange={setSourceStation}
+                label="From Station"
+                placeholder="Search source station..."
+              />
+              
+              <StationSelector
+                value={destinationStation}
+                onValueChange={setDestinationStation}
+                label="To Station"
+                placeholder="Search destination station..."
+              />
 
               <div className="space-y-2">
                 <Label htmlFor="passengers">Passengers</Label>
@@ -463,21 +448,31 @@ Expires: ${new Date(ticket.expires_at).toLocaleDateString()}
             <Button 
               onClick={generateOfflineTicket} 
               disabled={isLoading} 
-              className="w-full"
+              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-metro-blue to-metro-green hover:from-metro-blue/90 hover:to-metro-green/90 transition-all duration-300 shadow-lg hover:shadow-xl"
               size="lg"
             >
-              {isLoading ? "Generating..." : "Generate Offline Ticket"}
+              {isLoading ? (
+                <div className="flex items-center gap-2">
+                  <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
+                  Generating...
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <QrCode className="h-5 w-5" />
+                  Generate Offline Ticket - ₹{calculateFare()}
+                </div>
+              )}
             </Button>
           </CardContent>
         </Card>
 
         {/* Generated Ticket Display */}
         {generatedTicket && qrCodeUrl && (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                Generated Ticket
+          <Card className="glass-effect border-white/20 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-metro-green/10 to-metro-blue/10">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <CheckCircle className="h-6 w-6 text-metro-green" />
+                Ticket Generated Successfully
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
@@ -588,7 +583,7 @@ Expires: ${new Date(ticket.expires_at).toLocaleDateString()}
           </Card>
         )}
       </div>
-    </div>
+    </PageLayout>
   );
 };
 
