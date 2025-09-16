@@ -6,10 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { Download, QrCode, Wifi, WifiOff, CheckCircle, AlertCircle, Scan, Ticket, Smartphone } from "lucide-react";
 import QRCode from "qrcode";
-import StationSelector, { METRO_STATIONS } from "@/components/StationSelector";
+import StationSelector from "@/components/StationSelector";
 import PageLayout from "@/components/PageLayout";
 
 interface Station {
@@ -33,7 +34,7 @@ interface OfflineTicket {
 }
 
 // Sample metro stations data (subset for demo)
-const METRO_STATIONS: Station[] = [
+const OFFLINE_METRO_STATIONS: Station[] = [
   { id: "1", name: "Nagole" },
   { id: "2", name: "Uppal" },
   { id: "8", name: "Secunderabad East" },
@@ -89,8 +90,8 @@ const OfflineTickets = () => {
   const calculateFare = () => {
     if (!sourceStation || !destinationStation) return 0;
     
-    const sourceIndex = METRO_STATIONS.findIndex(s => s.id === sourceStation);
-    const destIndex = METRO_STATIONS.findIndex(s => s.id === destinationStation);
+    const sourceIndex = OFFLINE_METRO_STATIONS.findIndex(s => s.id === sourceStation);
+    const destIndex = OFFLINE_METRO_STATIONS.findIndex(s => s.id === destinationStation);
     
     if (sourceIndex === -1 || destIndex === -1) return 0;
     
@@ -133,8 +134,8 @@ const OfflineTickets = () => {
     try {
       const ticketId = generateTicketId();
       const fareAmount = calculateFare();
-      const sourceStationName = METRO_STATIONS.find(s => s.id === sourceStation)?.name || "";
-      const destinationStationName = METRO_STATIONS.find(s => s.id === destinationStation)?.name || "";
+      const sourceStationName = OFFLINE_METRO_STATIONS.find(s => s.id === sourceStation)?.name || "";
+      const destinationStationName = OFFLINE_METRO_STATIONS.find(s => s.id === destinationStation)?.name || "";
       
       const expiresAt = new Date();
       expiresAt.setHours(expiresAt.getHours() + 24); // Ticket expires in 24 hours
@@ -387,6 +388,7 @@ Expires: ${new Date(ticket.expires_at).toLocaleDateString()}
           <CardContent className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2">
               <StationSelector
+                stations={OFFLINE_METRO_STATIONS}
                 value={sourceStation}
                 onValueChange={setSourceStation}
                 label="From Station"
@@ -394,6 +396,7 @@ Expires: ${new Date(ticket.expires_at).toLocaleDateString()}
               />
               
               <StationSelector
+                stations={OFFLINE_METRO_STATIONS}
                 value={destinationStation}
                 onValueChange={setDestinationStation}
                 label="To Station"
@@ -494,14 +497,14 @@ Expires: ${new Date(ticket.expires_at).toLocaleDateString()}
         )}
 
         {/* Ticket Validation */}
-        <Card>
-          <CardHeader>
+        <Card className="glass-effect border-white/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-metro-red/10 to-accent-yellow/10">
             <CardTitle className="flex items-center gap-2">
-              <Scan className="h-5 w-5" />
+              <Scan className="h-5 w-5 text-metro-red" />
               Validate Ticket
             </CardTitle>
             <CardDescription>
-              {isOnline ? "Enter QR code data to validate ticket" : "Internet connection required for validation"}
+              {isOnline ? "Scan or paste QR code data to validate tickets" : "Internet connection required for validation"}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -515,70 +518,77 @@ Expires: ${new Date(ticket.expires_at).toLocaleDateString()}
                 disabled={!isOnline}
               />
             </div>
-            
             <Button 
               onClick={validateTicket} 
-              disabled={isLoading || !isOnline} 
+              disabled={!isOnline || isLoading || !scanResult.trim()}
               className="w-full"
             >
-              {isLoading ? "Validating..." : "Validate Ticket"}
+              <Scan className="h-4 w-4 mr-2" />
+              Validate Ticket
             </Button>
 
             {validationResult && (
-              <div className={`p-4 rounded-lg border ${validationResult.isValid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
-                <div className="flex items-center gap-2 mb-2">
-                  {validationResult.isValid ? (
-                    <CheckCircle className="h-5 w-5 text-green-500" />
-                  ) : (
-                    <AlertCircle className="h-5 w-5 text-red-500" />
-                  )}
-                  <p className={`font-medium ${validationResult.isValid ? 'text-green-700' : 'text-red-700'}`}>
-                    {validationResult.message}
-                  </p>
-                </div>
-                {validationResult.ticket && (
-                  <div className="text-sm space-y-1">
-                    <p>Ticket ID: {validationResult.ticket.ticketId}</p>
-                    <p>{validationResult.ticket.source} → {validationResult.ticket.destination}</p>
-                    <p>{validationResult.ticket.passengers} Passenger{validationResult.ticket.passengers > 1 ? 's' : ''} • ₹{validationResult.ticket.fare}</p>
+              <Card className={`${validationResult.isValid ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-2 mb-2">
+                    {validationResult.isValid ? (
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                    ) : (
+                      <AlertCircle className="h-5 w-5 text-red-600" />
+                    )}
+                    <span className={`font-medium ${validationResult.isValid ? 'text-green-800' : 'text-red-800'}`}>
+                      {validationResult.message}
+                    </span>
                   </div>
-                )}
-              </div>
+                  {validationResult.ticket && (
+                    <div className="text-sm space-y-1">
+                      <p>Ticket ID: {validationResult.ticket.ticketId}</p>
+                      <p>{validationResult.ticket.source} → {validationResult.ticket.destination}</p>
+                      <p>{validationResult.ticket.passengers} Passenger(s) • ₹{validationResult.ticket.fare}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             )}
           </CardContent>
         </Card>
 
         {/* Saved Tickets */}
         {savedTickets.length > 0 && (
-          <Card>
+          <Card className="glass-effect border-white/20 shadow-lg">
             <CardHeader>
-              <CardTitle>Saved Offline Tickets</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <Ticket className="h-5 w-5" />
+                Your Offline Tickets ({savedTickets.length})
+              </CardTitle>
               <CardDescription>
-                Tickets saved on this device
+                Previously generated tickets stored locally on your device
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {savedTickets.slice(0, 5).map((ticket) => (
-                  <div key={ticket.id} className="flex items-center justify-between p-4 border rounded-lg">
+            <CardContent className="space-y-4">
+              {savedTickets.slice(0, 5).map((ticket) => (
+                <Card key={ticket.id} className="p-4">
+                  <div className="flex justify-between items-start">
                     <div className="space-y-1">
-                      <p className="font-medium">{ticket.ticket_id}</p>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary">{ticket.ticket_id}</Badge>
+                        {ticket.is_validated && <Badge variant="default">Validated</Badge>}
+                      </div>
+                      <p className="font-medium">{ticket.source_station} → {ticket.destination_station}</p>
                       <p className="text-sm text-muted-foreground">
-                        {ticket.source_station} → {ticket.destination_station}
+                        {ticket.passenger_count} Passenger(s) • ₹{ticket.fare_amount}
                       </p>
-                      <p className="text-sm text-muted-foreground">
-                        {ticket.travel_date} • {ticket.passenger_count} passenger{ticket.passenger_count > 1 ? 's' : ''}
+                      <p className="text-xs text-muted-foreground">
+                        {new Date(ticket.created_at).toLocaleDateString()} • 
+                        Expires: {new Date(ticket.expires_at).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">₹{ticket.fare_amount}</p>
-                      <Button onClick={() => downloadTicket(ticket)} variant="outline" size="sm">
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
+                    <Button size="sm" variant="outline" onClick={() => downloadTicket(ticket)}>
+                      <Download className="h-4 w-4" />
+                    </Button>
                   </div>
-                ))}
-              </div>
+                </Card>
+              ))}
             </CardContent>
           </Card>
         )}

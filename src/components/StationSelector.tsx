@@ -24,7 +24,7 @@ interface Station {
 }
 
 interface StationSelectorProps {
-  stations: Station[];
+  stations?: Station[];
   value: string;
   onValueChange: (value: string) => void;
   placeholder?: string;
