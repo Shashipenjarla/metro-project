@@ -239,9 +239,14 @@ const RouteOptimizer = () => {
 
     setLoading(true);
 
+    // Convert station IDs to station names for the graph
+    const { METRO_STATIONS } = require("@/components/StationSelector");
+    const sourceStationName = METRO_STATIONS.find((s: any) => s.id === sourceStation)?.name || sourceStation;
+    const destinationStationName = METRO_STATIONS.find((s: any) => s.id === destinationStation)?.name || destinationStation;
+
     // Simulate processing delay
     setTimeout(() => {
-      const result = dijkstra(METRO_GRAPH, sourceStation, destinationStation);
+      const result = dijkstra(METRO_GRAPH, sourceStationName, destinationStationName);
       
       if (result.path.length === 0) {
         toast({

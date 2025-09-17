@@ -167,23 +167,35 @@ const Booking = () => {
       const totalAmount = fare * passengerCount;
 
       // Create mock booking data (will be replaced with real database calls later)
+      const ticketId = `TKT-${Date.now()}`;
+      const qrData = {
+        ticketId,
+        source: stations.find(s => s.id === sourceStation)?.name || sourceStation,
+        destination: stations.find(s => s.id === destinationStation)?.name || destinationStation,
+        date: travelDate,
+        time: travelTime,
+        passengers: passengerCount,
+        amount: totalAmount
+      };
+
       const ticketBooking = {
-        id: `ticket_${Date.now()}`,
-        user_id: user.id,
+        id: ticketId,
+        user_id: user?.id || null,
         source_station_id: sourceStation,
         destination_station_id: destinationStation,
         travel_date: travelDate,
         travel_time: travelTime,
         passenger_count: passengerCount,
         total_amount: totalAmount,
-        booking_status: "confirmed"
+        booking_status: "confirmed",
+        qr_data: JSON.stringify(qrData)
       };
 
       let parkingBooking = null;
       if (needsParking && parkingStation) {
         parkingBooking = {
           id: `parking_${Date.now()}`,
-          user_id: user.id,
+          user_id: user?.id || null,
           station_id: parkingStation,
           vehicle_type: parkingType,
           booking_date: travelDate,
