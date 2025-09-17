@@ -69,13 +69,9 @@ const Feedback = () => {
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
-    setUser(session.user);
+    setUser(session?.user || null);
     // Pre-fill email if available
-    if (session.user.email) {
+    if (session?.user?.email) {
       setForm(prev => ({ ...prev, contact_email: session.user.email }));
     }
   };

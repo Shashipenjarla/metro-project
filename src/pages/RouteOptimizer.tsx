@@ -118,16 +118,12 @@ const RouteOptimizer = () => {
   const stations = Object.keys(METRO_GRAPH).sort();
 
   useEffect(() => {
-    checkAuth();
+    // Remove auth check - allow access without authentication
   }, []);
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
-    setUser(session.user);
+    setUser(session?.user || null);
   };
 
   // Dijkstra's Algorithm Implementation

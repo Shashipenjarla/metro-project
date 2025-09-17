@@ -56,11 +56,7 @@ const VirtualCard = () => {
 
   const checkAuth = async () => {
     const { data: { session } } = await supabase.auth.getSession();
-    if (!session) {
-      navigate("/auth");
-      return;
-    }
-    setUser(session.user);
+    setUser(session?.user || null);
   };
 
   const loadVirtualCard = async () => {

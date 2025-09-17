@@ -53,11 +53,8 @@ const FeatureCard = ({
   const handleClick = () => {
     if (isComingSoon) return;
     
-    if (user) {
-      navigate(path);
-    } else {
-      navigate("/auth");
-    }
+    // Allow access to all features regardless of auth status for now
+    navigate(path);
   };
 
   return (
@@ -101,9 +98,7 @@ const FeatureCard = ({
         >
           {isComingSoon 
             ? "Coming Soon" 
-            : user 
-              ? "Access Feature" 
-              : "Sign In to Access"
+            : "Access Feature"
           }
         </Button>
       </CardContent>

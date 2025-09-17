@@ -109,9 +109,12 @@ const SmartParking = () => {
   };
 
   const handleBooking = async () => {
+    // Show a demo message since authentication is not required
     if (!user) {
-      navigate('/auth');
-      return;
+      toast({
+        title: "Demo Mode",
+        description: "This is a demo. In a real app, you would sign in to book parking.",
+      });
     }
 
     if (!selectedStation || !bookingDate || !startTime || !endTime) {
