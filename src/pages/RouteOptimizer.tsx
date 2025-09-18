@@ -6,7 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { MapPin, Clock, IndianRupee, Route, Navigation, Zap, TrendingUp } from "lucide-react";
-import StationSelector, { METRO_STATIONS } from "@/components/StationSelector";
+import StationSelector from "@/components/StationSelector";
+import { METRO_STATIONS } from "@/components/StationSelector";
 import PageLayout from "@/components/PageLayout";
 
 // Metro stations with connections and weights (time in minutes)
@@ -240,13 +241,17 @@ const RouteOptimizer = () => {
     setLoading(true);
 
     // Convert station IDs to station names for the graph
-    const { METRO_STATIONS } = require("@/components/StationSelector");
     const sourceStationName = METRO_STATIONS.find((s: any) => s.id === sourceStation)?.name || sourceStation;
     const destinationStationName = METRO_STATIONS.find((s: any) => s.id === destinationStation)?.name || destinationStation;
+
+    console.log("Source Station ID:", sourceStation, "Name:", sourceStationName);
+    console.log("Destination Station ID:", destinationStation, "Name:", destinationStationName);
+    console.log("METRO_GRAPH keys:", Object.keys(METRO_GRAPH));
 
     // Simulate processing delay
     setTimeout(() => {
       const result = dijkstra(METRO_GRAPH, sourceStationName, destinationStationName);
+      console.log("Dijkstra result:", result);
       
       if (result.path.length === 0) {
         toast({
