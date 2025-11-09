@@ -47,8 +47,8 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/50 to-muted/30">
       <Header user={user} />
-      <Hero />
-      <DashboardGrid />
+      <Hero user={user} />
+      <DashboardGrid user={user} />
       <div className="container mx-auto px-4 py-8">
         <VoiceAssistant />
       </div>
