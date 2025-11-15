@@ -668,10 +668,7 @@ export type Database = {
         Args: { description: string; title: string }
         Returns: string[]
       }
-      generate_tracking_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      generate_tracking_id: { Args: never; Returns: string }
     }
     Enums: {
       assistance_status:
