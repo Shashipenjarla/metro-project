@@ -53,7 +53,7 @@ const METRO_STATIONS: Station[] = [
   { id: "26", name: "JNTU College", has_parking: true, parking_two_wheeler_slots: 150, parking_four_wheeler_slots: 75 },
   { id: "27", name: "KPHB Colony", has_parking: true, parking_two_wheeler_slots: 120, parking_four_wheeler_slots: 60 },
   { id: "28", name: "Kukatpally", has_parking: true, parking_two_wheeler_slots: 180, parking_four_wheeler_slots: 90 },
-  { id: "29", name: "Dr BR Ambedkar Balanagar", has_parking: true, parking_two_wheeler_slots: 100, parking_four_wheeler_slots: 50 },
+  { id: "29", name: "Balanagar", has_parking: true, parking_two_wheeler_slots: 100, parking_four_wheeler_slots: 50 },
   { id: "30", name: "Moosapet", has_parking: true, parking_two_wheeler_slots: 85, parking_four_wheeler_slots: 40 },
   { id: "31", name: "Bharat Nagar", has_parking: false, parking_two_wheeler_slots: 0, parking_four_wheeler_slots: 0 },
   { id: "32", name: "Erragadda", has_parking: true, parking_two_wheeler_slots: 90, parking_four_wheeler_slots: 45 },

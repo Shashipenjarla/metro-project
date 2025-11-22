@@ -40,7 +40,7 @@ const METRO_STATIONS = [
   "Secunderabad East", "Parade Ground", "Secunderabad West", "Gandhi Hospital", "Musheerabad",
   "RTC X Roads", "Chikkadpally", "Narayanguda", "Sultan Bazar", "MG Bus Station", "Malakpet",
   "New Market", "Musarambagh", "Dilsukhnagar", "Chaitanyapuri", "Victoria Memorial", "LB Nagar",
-  "Miyapur", "JNTU College", "KPHB Colony", "Kukatpally", "Dr BR Ambedkar Balanagar", "Moosapet",
+  "Miyapur", "JNTU College", "KPHB Colony", "Kukatpally", "Balanagar", "Moosapet",
   "Bharat Nagar", "Erragadda", "ESI Hospital", "SR Nagar", "Ameerpet", "Punjagutta", "Irrum Manzil",
   "Khairatabad", "Lakdikapool", "Assembly", "Nampally", "Gandhi Bhavan", "Osmania Medical College",
   "Hi-Tech City", "Madhapur", "Durgam Cheruvu", "Jubilee Hills Checkpost", "Jubilee Hills",

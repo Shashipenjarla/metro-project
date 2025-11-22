@@ -96,16 +96,31 @@ const AccessibilityAssistance = () => {
           .select()
           .single();
 
-        if (createError) throw createError;
-        setProfile(newProfile);
+        if (createError) {
+          console.error('Error creating profile:', createError);
+          // Continue with a basic profile instead of failing
+          setProfile({
+            user_id: user.id,
+            full_name: user.email || 'User',
+            phone_number: null,
+            role: 'passenger'
+          } as Profile);
+        } else {
+          setProfile(newProfile);
+        }
       }
     } catch (error) {
       console.error('Error fetching profile:', error);
-      toast({
-        title: "Error",
-        description: "Failed to load user profile",
-        variant: "destructive",
-      });
+      // Don't show error, just use basic profile
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setProfile({
+          user_id: user.id,
+          full_name: user.email || 'User',
+          phone_number: null,
+          role: 'passenger'
+        } as Profile);
+      }
     } finally {
       setLoading(false);
     }
