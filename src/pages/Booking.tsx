@@ -134,25 +134,41 @@ const Booking = () => {
     const source = stations.find(s => s.id === sourceStation);
     const dest = stations.find(s => s.id === destinationStation);
     
-    if (!source || !dest) return 10;
+    if (!source || !dest) {
+      console.log('Fare Calc: Station not found', { sourceStation, destinationStation });
+      return 10;
+    }
     
     // Extract station numbers from IDs for distance calculation
     const sourceNum = parseInt(source.id);
     const destNum = parseInt(dest.id);
     
     // Calculate approximate distance based on station ID differences
-    // This works because stations are numbered sequentially along their lines
     const distance = Math.abs(sourceNum - destNum);
+    
+    console.log('Fare Calculation:', {
+      source: source.name,
+      sourceId: source.id,
+      dest: dest.name,
+      destId: dest.id,
+      distance,
+      sourceNum,
+      destNum
+    });
     
     // Hyderabad Metro fare structure based on distance:
     // 1-3 stations: ₹10, 4-6 stations: ₹20, 7-12 stations: ₹30
     // 13-18 stations: ₹40, 19-25 stations: ₹50, 26+ stations: ₹60
-    if (distance <= 3) return 10;
-    if (distance <= 6) return 20;
-    if (distance <= 12) return 30;
-    if (distance <= 18) return 40;
-    if (distance <= 25) return 50;
-    return 60; // Maximum fare for longest journeys
+    let fare = 10;
+    if (distance <= 3) fare = 10;
+    else if (distance <= 6) fare = 20;
+    else if (distance <= 12) fare = 30;
+    else if (distance <= 18) fare = 40;
+    else if (distance <= 25) fare = 50;
+    else fare = 60; // Maximum fare for longest journeys
+    
+    console.log('Calculated Fare:', fare);
+    return fare;
   };
 
   const handleBooking = async () => {

@@ -33,17 +33,90 @@ interface OfflineTicket {
   expires_at: string;
 }
 
-// Sample metro stations data (subset for demo)
+// Complete Hyderabad Metro stations data - All Lines
 const OFFLINE_METRO_STATIONS: Station[] = [
+  // Blue Line (Nagole to Raidurg)
   { id: "1", name: "Nagole" },
   { id: "2", name: "Uppal" },
+  { id: "3", name: "Survey Settlement" },
+  { id: "4", name: "NGRI" },
+  { id: "5", name: "Habsiguda" },
+  { id: "6", name: "Tarnaka" },
+  { id: "7", name: "Mettuguda" },
   { id: "8", name: "Secunderabad East" },
+  { id: "9", name: "Parade Ground" },
   { id: "10", name: "Secunderabad West" },
+  { id: "11", name: "Gandhi Hospital" },
+  { id: "12", name: "Musheerabad" },
+  { id: "13", name: "RTC X Roads" },
+  { id: "14", name: "Chikkadpally" },
+  { id: "15", name: "Narayanguda" },
+  { id: "16", name: "Sultan Bazar" },
   { id: "17", name: "MG Bus Station" },
+  { id: "18", name: "Malakpet" },
+  { id: "19", name: "New Market" },
+  { id: "20", name: "Musarambagh" },
   { id: "21", name: "Dilsukhnagar" },
+  { id: "22", name: "Chaitanyapuri" },
+  { id: "23", name: "Victoria Memorial" },
+  { id: "24", name: "LB Nagar" },
+  
+  // Red Line (Miyapur to LB Nagar)
   { id: "25", name: "Miyapur" },
-  { id: "40", name: "Hitech City" },
-  { id: "50", name: "LB Nagar" },
+  { id: "26", name: "JNTU College" },
+  { id: "27", name: "KPHB Colony" },
+  { id: "28", name: "Kukatpally" },
+  { id: "29", name: "Balanagar" },
+  { id: "30", name: "Moosapet" },
+  { id: "31", name: "Bharat Nagar" },
+  { id: "32", name: "Erragadda" },
+  { id: "33", name: "ESI Hospital" },
+  { id: "34", name: "SR Nagar" },
+  { id: "35", name: "Ameerpet" },
+  { id: "36", name: "Punjagutta" },
+  { id: "37", name: "Irrum Manzil" },
+  { id: "38", name: "Khairatabad" },
+  { id: "39", name: "Lakdikapool" },
+  { id: "40", name: "Assembly" },
+  { id: "41", name: "Nampally" },
+  { id: "42", name: "Gandhi Bhavan" },
+  { id: "43", name: "Osmania Medical College" },
+  { id: "44", name: "MG Bus Station" },
+  
+  // Green Line (Nagole to Shilparamam/Hi-Tech City)
+  { id: "45", name: "JBS Parade Ground" },
+  { id: "46", name: "Secunderabad" },
+  { id: "47", name: "Gandhi Hospital" },
+  { id: "48", name: "Musheerabad" },
+  { id: "49", name: "RTC X Roads" },
+  { id: "50", name: "Chikkadpally" },
+  { id: "51", name: "Narayanguda" },
+  { id: "52", name: "Sultan Bazar" },
+  { id: "53", name: "MG Bus Station" },
+  { id: "54", name: "Osmania Medical College" },
+  { id: "55", name: "Gandhi Bhavan" },
+  { id: "56", name: "Nampally" },
+  { id: "57", name: "Assembly" },
+  { id: "58", name: "Lakdikapool" },
+  { id: "59", name: "Khairatabad" },
+  { id: "60", name: "Irrum Manzil" },
+  { id: "61", name: "Punjagutta" },
+  { id: "62", name: "Ameerpet" },
+  { id: "63", name: "Begumpet" },
+  { id: "64", name: "Prakash Nagar" },
+  { id: "65", name: "Rasoolpura" },
+  { id: "66", name: "JBS Parade Ground" },
+  
+  // Additional Important Stations
+  { id: "67", name: "Raidurg" },
+  { id: "68", name: "Hi-Tech City" },
+  { id: "69", name: "Madhapur" },
+  { id: "70", name: "Durgam Cheruvu" },
+  { id: "71", name: "Jubilee Hills Checkpost" },
+  { id: "72", name: "Jubilee Hills" },
+  { id: "73", name: "Yusufguda" },
+  { id: "74", name: "Madhura Nagar" },
+  { id: "75", name: "Peddamma Gudi" },
 ];
 
 const OfflineTickets = () => {
@@ -90,18 +163,29 @@ const OfflineTickets = () => {
   const calculateFare = () => {
     if (!sourceStation || !destinationStation) return 0;
     
-    const sourceIndex = OFFLINE_METRO_STATIONS.findIndex(s => s.id === sourceStation);
-    const destIndex = OFFLINE_METRO_STATIONS.findIndex(s => s.id === destinationStation);
+    // Find source and destination stations
+    const source = OFFLINE_METRO_STATIONS.find(s => s.id === sourceStation);
+    const dest = OFFLINE_METRO_STATIONS.find(s => s.id === destinationStation);
     
-    if (sourceIndex === -1 || destIndex === -1) return 0;
+    if (!source || !dest) return 0;
     
-    const distance = Math.abs(destIndex - sourceIndex);
+    // Extract station numbers from IDs for distance calculation
+    const sourceNum = parseInt(source.id);
+    const destNum = parseInt(dest.id);
+    
+    // Calculate distance based on station ID differences
+    const distance = Math.abs(sourceNum - destNum);
+    
+    // Hyderabad Metro fare structure based on distance:
+    // 1-3 stations: ₹10, 4-6 stations: ₹20, 7-12 stations: ₹30
+    // 13-18 stations: ₹40, 19-25 stations: ₹50, 26+ stations: ₹60
     let baseFare = 10;
-    
-    if (distance <= 2) baseFare = 10;
-    else if (distance <= 5) baseFare = 15;
-    else if (distance <= 10) baseFare = 20;
-    else baseFare = 25;
+    if (distance <= 3) baseFare = 10;
+    else if (distance <= 6) baseFare = 20;
+    else if (distance <= 12) baseFare = 30;
+    else if (distance <= 18) baseFare = 40;
+    else if (distance <= 25) baseFare = 50;
+    else baseFare = 60;
     
     return baseFare * passengerCount;
   };
