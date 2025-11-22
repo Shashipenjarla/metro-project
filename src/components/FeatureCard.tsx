@@ -53,8 +53,14 @@ const FeatureCard = ({
   const handleClick = () => {
     if (isComingSoon) return;
     
-    // Allow access to all features regardless of auth status for now
-    navigate(path);
+    if (path.startsWith('#')) {
+      // Handle anchor link for voice assistant
+      const element = document.getElementById(path.slice(1));
+      element?.scrollIntoView({ behavior: 'smooth' });
+    } else {
+      // Navigate to page
+      navigate(path);
+    }
   };
 
   return (

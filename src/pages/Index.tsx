@@ -49,7 +49,7 @@ const Index = () => {
       <Header user={user} />
       <Hero user={user} />
       <DashboardGrid user={user} />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8" id="voice-assistant">
         <VoiceAssistant />
       </div>
       <ModalBookTicket>
