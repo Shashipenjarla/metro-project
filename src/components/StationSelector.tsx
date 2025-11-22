@@ -38,7 +38,7 @@ const METRO_STATIONS: Station[] = [
   { id: "jntu-college", name: "JNTU College", line: "Red" },
   { id: "kphb-colony", name: "KPHB Colony", line: "Red" },
   { id: "kukatpally", name: "Kukatpally", line: "Red" },
-  { id: "balanagar", name: "Dr BR Ambedkar Balanagar", line: "Red" },
+  { id: "balanagar", name: "Balanagar", line: "Red" },
   { id: "moosapet", name: "Moosapet", line: "Red" },
   { id: "bharat-nagar", name: "Bharat Nagar", line: "Red" },
   { id: "erragadda", name: "Erragadda", line: "Red" },
