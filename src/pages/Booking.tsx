@@ -130,15 +130,20 @@ const Booking = () => {
   };
 
   const calculateFare = () => {
-    // Simple fare calculation based on station distance
+    // Realistic fare calculation based on station distance
     const sourceIndex = stations.findIndex(s => s.id === sourceStation);
     const destIndex = stations.findIndex(s => s.id === destinationStation);
     const distance = Math.abs(destIndex - sourceIndex);
     
-    // Base fare + distance-based fare (mimicking real metro pricing)
-    const baseFare = 11;
-    const distanceFare = distance * 2;
-    return Math.min(baseFare + distanceFare, 69); // Max fare as per Hyderabad Metro
+    // Hyderabad Metro fare structure:
+    // 0-2 stations: ₹10, 3-5 stations: ₹20, 6-10 stations: ₹30
+    // 11-15 stations: ₹40, 16-20 stations: ₹50, 21+ stations: ₹60
+    if (distance <= 2) return 10;
+    if (distance <= 5) return 20;
+    if (distance <= 10) return 30;
+    if (distance <= 15) return 40;
+    if (distance <= 20) return 50;
+    return 60; // Maximum fare
   };
 
   const handleBooking = async () => {

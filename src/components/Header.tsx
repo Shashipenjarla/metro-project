@@ -54,6 +54,13 @@ const Header = ({ user }: HeaderProps) => {
                 Dashboard
               </Button>
             )}
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/metro-map")}
+              className="focus-ring"
+            >
+              Map
+            </Button>
           </nav>
 
           {/* User Actions */}
@@ -134,6 +141,16 @@ const Header = ({ user }: HeaderProps) => {
                   Dashboard
                 </Button>
               )}
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  navigate("/metro-map");
+                  setMobileMenuOpen(false);
+                }}
+                className="justify-start focus-ring"
+              >
+                Map
+              </Button>
             </nav>
           </div>
         )}

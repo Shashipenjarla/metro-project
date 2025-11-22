@@ -109,9 +109,12 @@ const features = [
     title: "Voice Assistant",
     description: "Talk to our multilingual AI assistant for hands-free metro help and navigation",
     icon: Mic,
-    path: "/voice-assistant",
+    path: "#voice-assistant",
     lineColor: "blue" as const,
-    isComingSoon: true
+    onClick: () => {
+      const voiceSection = document.getElementById('voice-assistant');
+      voiceSection?.scrollIntoView({ behavior: 'smooth' });
+    }
   },
   {
     title: "Station Navigation",
