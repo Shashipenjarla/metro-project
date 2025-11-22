@@ -47,7 +47,7 @@ const MetroMap = () => {
                 <div className="h-4 w-4 rounded-full bg-metro-green"></div>
                 <div>
                   <p className="font-semibold text-metro-green">Green Line</p>
-                  <p className="text-sm text-muted-foreground">JBS - Hi-Tech City</p>
+                  <p className="text-sm text-muted-foreground">JBS Parade Ground - MG Bus Stand</p>
                 </div>
               </div>
             </div>
