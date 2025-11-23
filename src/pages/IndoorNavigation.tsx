@@ -40,9 +40,24 @@ export default function IndoorNavigation() {
 
   const loadStationData = async (stationId: string) => {
     try {
-      const response = await fetch(`/src/data/stations/${stationId}.json`);
-      const data = await response.json();
-      setStationData(data);
+      let module;
+      switch(stationId) {
+        case 'ameerpet':
+          module = await import('../data/stations/ameerpet.json');
+          break;
+        case 'raidurg':
+          module = await import('../data/stations/raidurg.json');
+          break;
+        case 'miyapur':
+          module = await import('../data/stations/miyapur.json');
+          break;
+        case 'mg-bus-station':
+          module = await import('../data/stations/mg-bus-station.json');
+          break;
+        default:
+          throw new Error('Station not found');
+      }
+      setStationData(module.default);
       setSourceNode("");
       setDestinationNode("");
       setPathResult(null);
@@ -93,13 +108,8 @@ export default function IndoorNavigation() {
         title: "Route Found!",
         description: `${result.totalDistance}m in ${Math.ceil(result.estimatedTime / 60)} minutes`,
       });
-    } else {
-      toast({
-        title: "No Route Found",
-        description: "Unable to find a path between these locations",
-        variant: "destructive"
-      });
     }
+    // Silently handle no route case - no error toast
   };
 
   const handleClearNavigation = () => {
