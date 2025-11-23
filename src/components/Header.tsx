@@ -61,6 +61,13 @@ const Header = ({ user }: HeaderProps) => {
             >
               Map
             </Button>
+            <Button 
+              variant="ghost" 
+              onClick={() => navigate("/indoor-navigation")}
+              className="focus-ring"
+            >
+              Indoor Nav
+            </Button>
           </nav>
 
           {/* User Actions */}
@@ -150,6 +157,16 @@ const Header = ({ user }: HeaderProps) => {
                 className="justify-start focus-ring"
               >
                 Map
+              </Button>
+              <Button 
+                variant="ghost" 
+                onClick={() => {
+                  navigate("/indoor-navigation");
+                  setMobileMenuOpen(false);
+                }}
+                className="justify-start focus-ring"
+              >
+                Indoor Navigation
               </Button>
             </nav>
           </div>
