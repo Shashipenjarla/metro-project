@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
 import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock } from "lucide-react";
-import StationSelector from "@/components/StationSelector";
+import StationSelector, { METRO_STATIONS as SELECTOR_STATIONS } from "@/components/StationSelector";
 import PageLayout from "@/components/PageLayout";
 
 interface Station {
@@ -132,18 +132,15 @@ const Booking = () => {
   const calculateFare = () => {
     if (!sourceStation || !destinationStation) return 10;
     
-    // Import station data from StationSelector to ensure consistency
-    const { METRO_STATIONS: selectorStations } = require('@/components/StationSelector');
-    
-    // Find the actual station objects
-    const source = selectorStations.find((s: any) => s.id === sourceStation);
-    const dest = selectorStations.find((s: any) => s.id === destinationStation);
+    // Find the actual station objects using imported SELECTOR_STATIONS
+    const source = SELECTOR_STATIONS.find(s => s.id === sourceStation);
+    const dest = SELECTOR_STATIONS.find(s => s.id === destinationStation);
     
     if (!source || !dest) return 10;
     
     // Get the index position of each station in the array
-    const sourceIndex = selectorStations.findIndex((s: any) => s.id === sourceStation);
-    const destIndex = selectorStations.findIndex((s: any) => s.id === destinationStation);
+    const sourceIndex = SELECTOR_STATIONS.findIndex(s => s.id === sourceStation);
+    const destIndex = SELECTOR_STATIONS.findIndex(s => s.id === destinationStation);
     
     // Calculate distance based on number of stations between them
     const stationDistance = Math.abs(destIndex - sourceIndex);
