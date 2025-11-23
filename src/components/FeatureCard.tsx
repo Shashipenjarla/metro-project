@@ -10,7 +10,7 @@ interface FeatureCardProps {
   path: string;
   lineColor: 'red' | 'blue' | 'green';
   user?: any;
-  isComingSoon?: boolean;
+  onClick?: () => void;
 }
 
 const FeatureCard = ({ 
@@ -20,7 +20,7 @@ const FeatureCard = ({
   path, 
   lineColor, 
   user,
-  isComingSoon = false 
+  onClick 
 }: FeatureCardProps) => {
   const navigate = useNavigate();
 
@@ -51,21 +51,19 @@ const FeatureCard = ({
   const colors = colorClasses[lineColor];
 
   const handleClick = () => {
-    if (isComingSoon) return;
-    
-    if (path.startsWith('#')) {
-      // Handle anchor link for voice assistant
+    if (onClick) {
+      onClick();
+    } else if (path.startsWith('#')) {
       const element = document.getElementById(path.slice(1));
       element?.scrollIntoView({ behavior: 'smooth' });
     } else {
-      // Navigate to page
       navigate(path);
     }
   };
 
   return (
     <Card 
-      className={`metro-card cursor-pointer group ${colors.glow} ${isComingSoon ? 'opacity-75 cursor-not-allowed' : ''}`}
+      className={`metro-card cursor-pointer group ${colors.glow}`}
       onClick={handleClick}
       style={{ '--line-color': lineColor === 'red' ? '#D32F2F' : lineColor === 'blue' ? '#1565C0' : '#2E7D32' } as any}
     >
@@ -80,11 +78,6 @@ const FeatureCard = ({
           <div className={`inline-flex items-center rounded-full px-2 py-1 text-xs font-medium ${colors.bg} ${colors.text}`}>
             {lineColor.charAt(0).toUpperCase() + lineColor.slice(1)} Line
           </div>
-          {isComingSoon && (
-            <span className="rounded-full bg-accent-yellow/20 px-2 py-1 text-xs font-medium text-yellow-700 dark:text-yellow-300">
-              Coming Soon
-            </span>
-          )}
         </div>
 
         <div>
@@ -99,13 +92,9 @@ const FeatureCard = ({
 
       <CardContent>
         <Button 
-          className={`w-full ${colors.gradient} hover:shadow-lg focus-ring transition-metro font-semibold ${isComingSoon ? 'opacity-50 cursor-not-allowed' : 'shimmer'}`}
-          disabled={isComingSoon}
+          className={`w-full ${colors.gradient} hover:shadow-lg focus-ring transition-metro font-semibold shimmer`}
         >
-          {isComingSoon 
-            ? "Coming Soon" 
-            : "Access Feature"
-          }
+          Access Feature
         </Button>
       </CardContent>
     </Card>

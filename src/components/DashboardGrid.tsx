@@ -120,9 +120,8 @@ const features = [
     title: "Station Navigation",
     description: "Indoor GPS navigation to help you find platforms, exits, and facilities inside stations",
     icon: MapPin,
-    path: "/navigation",
-    lineColor: "green" as const,
-    isComingSoon: true
+    path: "/indoor-navigation",
+    lineColor: "green" as const
   }
 ];
 
@@ -155,7 +154,7 @@ const DashboardGrid = ({ user }: DashboardGridProps) => {
                 path={feature.path}
                 lineColor={feature.lineColor}
                 user={user}
-                isComingSoon={feature.isComingSoon}
+                onClick={feature.onClick}
               />
             </div>
           ))}
