@@ -22,6 +22,7 @@ import FeedbackAdmin from "./pages/FeedbackAdmin";
 import LostAndFound from "./pages/LostAndFound";
 import SmartParking from "./pages/SmartParking";
 import MetroMap from "./pages/MetroMap";
+import IndoorNavigation from "./pages/IndoorNavigation";
 import OfflineTickets from "./pages/OfflineTickets";
 import NotFound from "./pages/NotFound";
 import FloatingChat from "./components/FloatingChat";
@@ -52,8 +53,9 @@ const App = () => (
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/feedback-status" element={<FeedbackStatus />} />
           <Route path="/feedback-admin" element={<FeedbackAdmin />} />
-            <Route path="/smart-parking" element={<SmartParking />} />
-            <Route path="/metro-map" element={<MetroMap />} />
+          <Route path="/smart-parking" element={<SmartParking />} />
+          <Route path="/metro-map" element={<MetroMap />} />
+          <Route path="/indoor-navigation" element={<IndoorNavigation />} />
           <Route path="/offline-tickets" element={<OfflineTickets />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
