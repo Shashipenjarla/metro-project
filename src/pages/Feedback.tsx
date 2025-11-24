@@ -142,11 +142,10 @@ const Feedback = () => {
         }
       }
 
-      // Submit feedback  
+      // Submit feedback - don't send tracking_id, let the trigger generate it
       const { data, error } = await supabase
         .from('feedback')
         .insert([{
-          tracking_id: '',
           user_id: user.id,
           feedback_type: form.feedback_type as any,
           category: form.category as any,
