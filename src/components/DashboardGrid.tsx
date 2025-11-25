@@ -64,17 +64,17 @@ const features = [
     lineColor: "red" as const
   },
   {
-    title: "Food Stalls",
-    description: "Order delicious food from verified stalls at metro stations with UPI payments",
-    icon: UtensilsCrossed,
-    path: "/food-stalls",
+    title: "Station Navigation",
+    description: "Indoor GPS navigation to help you find platforms, exits, and facilities inside stations",
+    icon: MapPin,
+    path: "/indoor-navigation",
     lineColor: "blue" as const
   },
   {
-    title: "Accessibility Assistance",
-    description: "Request special assistance for differently-abled passengers at metro stations",
-    icon: Heart,
-    path: "/accessibility-assistance",
+    title: "Offline Tickets",
+    description: "Generate QR code tickets that work without internet connection for seamless travel",
+    icon: QrCode,
+    path: "/offline-tickets",
     lineColor: "green" as const
   },
   {
@@ -92,10 +92,10 @@ const features = [
     lineColor: "blue" as const
   },
   {
-    title: "Offline Tickets",
-    description: "Generate QR code tickets that work without internet connection for seamless travel",
-    icon: QrCode,
-    path: "/offline-tickets",
+    title: "Accessibility Assistance",
+    description: "Request special assistance for differently-abled passengers at metro stations",
+    icon: Heart,
+    path: "/accessibility-assistance",
     lineColor: "green" as const
   },
   {
@@ -117,10 +117,10 @@ const features = [
     }
   },
   {
-    title: "Station Navigation",
-    description: "Indoor GPS navigation to help you find platforms, exits, and facilities inside stations",
-    icon: MapPin,
-    path: "/indoor-navigation",
+    title: "Food Stalls",
+    description: "Order delicious food from verified stalls at metro stations with UPI payments",
+    icon: UtensilsCrossed,
+    path: "/food-stalls",
     lineColor: "green" as const
   }
 ];
