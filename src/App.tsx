@@ -24,6 +24,7 @@ import SmartParking from "./pages/SmartParking";
 import MetroMap from "./pages/MetroMap";
 import IndoorNavigation from "./pages/IndoorNavigation";
 import OfflineTickets from "./pages/OfflineTickets";
+import PostStationTransport from "./pages/PostStationTransport";
 import NotFound from "./pages/NotFound";
 import FloatingChat from "./components/FloatingChat";
 
@@ -57,6 +58,7 @@ const App = () => (
           <Route path="/metro-map" element={<MetroMap />} />
           <Route path="/indoor-navigation" element={<IndoorNavigation />} />
           <Route path="/offline-tickets" element={<OfflineTickets />} />
+          <Route path="/post-station-transport" element={<PostStationTransport />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <FloatingChat />

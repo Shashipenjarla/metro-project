@@ -13,7 +13,8 @@ import {
   QrCode, 
   User, 
   Mic,
-  MapPin
+  MapPin,
+  Bus
 } from "lucide-react";
 
 interface DashboardGridProps {
@@ -71,11 +72,18 @@ const features = [
     lineColor: "blue" as const
   },
   {
+    title: "Post-Station Transport",
+    description: "Find onward transport options from your destination station",
+    icon: Bus,
+    path: "/post-station-transport",
+    lineColor: "green" as const
+  },
+  {
     title: "Offline Tickets",
     description: "Generate QR code tickets that work without internet connection for seamless travel",
     icon: QrCode,
     path: "/offline-tickets",
-    lineColor: "green" as const
+    lineColor: "red" as const
   },
   {
     title: "Feedback & Support",
