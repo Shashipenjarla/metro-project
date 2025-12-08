@@ -202,12 +202,15 @@ const SmartParking = () => {
   };
 
   const handleBooking = async () => {
-    // Show a demo message since authentication is not required
+    // Check if user is authenticated
     if (!user) {
       toast({
-        title: "Demo Mode",
-        description: "This is a demo. In a real app, you would sign in to book parking.",
+        title: "Authentication Required",
+        description: "Please sign in to book a parking slot.",
+        variant: "destructive",
       });
+      navigate('/auth');
+      return;
     }
 
     if (!selectedStation || !bookingDate || !startTime || !endTime) {
