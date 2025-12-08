@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Car, Bike, Clock, CheckCircle, AlertCircle, ParkingCircle, CreditCard } from "lucide-react";
+import { Calendar, MapPin, Car, Bike, Clock, CheckCircle, AlertCircle, ParkingCircle, CreditCard, AlertTriangle, Navigation } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import StationSelector, { METRO_STATIONS } from "@/components/StationSelector";
@@ -34,6 +34,36 @@ interface ParkingBooking {
   amount: number;
   status: string;
 }
+
+interface NearbyStation {
+  station_name: string;
+  station_id: string;
+  distance: number;
+  twoWheelerAvailable: number;
+  fourWheelerAvailable: number;
+}
+
+// Simulated distances between stations (in km)
+const STATION_DISTANCES: Record<string, Record<string, number>> = {
+  "Chaitanyapuri": {
+    "Dilsukhnagar": 1.2,
+    "Victoria Memorial": 1.8,
+    "LB Nagar": 3.5,
+    "Nagole": 4.2,
+  },
+  "Dilsukhnagar": {
+    "Chaitanyapuri": 1.2,
+    "Victoria Memorial": 0.8,
+    "LB Nagar": 2.3,
+    "Nagole": 3.0,
+  },
+  "Victoria Memorial": {
+    "Chaitanyapuri": 1.8,
+    "Dilsukhnagar": 0.8,
+    "LB Nagar": 1.5,
+    "Nagole": 2.2,
+  },
+};
 
 const SmartParking = () => {
   const navigate = useNavigate();
@@ -97,6 +127,69 @@ const SmartParking = () => {
       console.error('Error fetching user bookings:', error);
     }
   };
+
+  // Check if a station is fully occupied for both vehicle types
+  const isStationFullyOccupied = (stationId: string): boolean => {
+    const twoWheeler = parkingData.find(p => p.station_id === stationId && p.vehicle_type === 'two_wheeler');
+    const fourWheeler = parkingData.find(p => p.station_id === stationId && p.vehicle_type === 'four_wheeler');
+    
+    const twoWheelerFull = twoWheeler ? twoWheeler.occupied_slots >= twoWheeler.total_slots : true;
+    const fourWheelerFull = fourWheeler ? fourWheeler.occupied_slots >= fourWheeler.total_slots : true;
+    
+    return twoWheelerFull && fourWheelerFull;
+  };
+
+  // Check if a station is full for a specific vehicle type
+  const isStationFullForVehicleType = (stationId: string, vType: string): boolean => {
+    const data = parkingData.find(p => p.station_id === stationId && p.vehicle_type === vType);
+    return data ? data.occupied_slots >= data.total_slots : true;
+  };
+
+  // Get selected station info
+  const selectedStationInfo = useMemo(() => {
+    if (!selectedStation) return null;
+    const station = parkingData.find(p => p.station_id === selectedStation);
+    return station;
+  }, [selectedStation, parkingData]);
+
+  // Check if selected station is full
+  const isSelectedStationFull = useMemo(() => {
+    if (!selectedStation) return false;
+    return isStationFullForVehicleType(selectedStation, vehicleType);
+  }, [selectedStation, vehicleType, parkingData]);
+
+  // Get nearby stations with available slots
+  const nearbyStationsWithSlots = useMemo((): NearbyStation[] => {
+    if (!selectedStationInfo || !isSelectedStationFull) return [];
+    
+    const stationName = selectedStationInfo.station_name;
+    const distances = STATION_DISTANCES[stationName] || {};
+    
+    const nearbyStations: NearbyStation[] = [];
+    
+    for (const [nearbyName, distance] of Object.entries(distances)) {
+      const twoWheeler = parkingData.find(p => p.station_name === nearbyName && p.vehicle_type === 'two_wheeler');
+      const fourWheeler = parkingData.find(p => p.station_name === nearbyName && p.vehicle_type === 'four_wheeler');
+      
+      const twoWheelerAvailable = twoWheeler ? twoWheeler.total_slots - twoWheeler.occupied_slots : 0;
+      const fourWheelerAvailable = fourWheeler ? fourWheeler.total_slots - fourWheeler.occupied_slots : 0;
+      
+      // Only include stations with available slots for the selected vehicle type
+      const hasAvailableSlots = vehicleType === 'two_wheeler' ? twoWheelerAvailable > 0 : fourWheelerAvailable > 0;
+      
+      if (hasAvailableSlots) {
+        nearbyStations.push({
+          station_name: nearbyName,
+          station_id: twoWheeler?.station_id || fourWheeler?.station_id || '',
+          distance,
+          twoWheelerAvailable,
+          fourWheelerAvailable,
+        });
+      }
+    }
+    
+    return nearbyStations.sort((a, b) => a.distance - b.distance);
+  }, [selectedStationInfo, isSelectedStationFull, parkingData, vehicleType]);
 
   const calculateAmount = () => {
     if (!startTime || !endTime) return 0;
@@ -208,9 +301,14 @@ const SmartParking = () => {
     }
   };
 
+  const handleSelectNearbyStation = (stationId: string) => {
+    setSelectedStation(stationId);
+  };
+
   const getAvailabilityStatus = (occupied: number, total: number) => {
     const percentage = (occupied / total) * 100;
-    if (percentage >= 90) return { status: 'full', color: 'destructive' as const };
+    if (percentage >= 100) return { status: 'full', color: 'destructive' as const };
+    if (percentage >= 90) return { status: 'limited', color: 'secondary' as const };
     if (percentage >= 70) return { status: 'limited', color: 'secondary' as const };
     return { status: 'available', color: 'default' as const };
   };
@@ -231,13 +329,20 @@ const SmartParking = () => {
           {stationsWithParking.map((station) => {
             const twoWheeler = parkingData.find(p => p.station_id === station.station_id && p.vehicle_type === 'two_wheeler');
             const fourWheeler = parkingData.find(p => p.station_id === station.station_id && p.vehicle_type === 'four_wheeler');
+            const isFull = isStationFullyOccupied(station.station_id);
             
             return (
-              <Card key={station.station_id} className="overflow-hidden glass-effect border-white/20 hover:shadow-lg transition-all duration-300">
-                <CardHeader className="pb-3 bg-gradient-to-r from-metro-blue/10 to-metro-green/10">
+              <Card 
+                key={station.station_id} 
+                className={`overflow-hidden glass-effect border-white/20 hover:shadow-lg transition-all duration-300 ${isFull ? 'border-destructive/50' : ''}`}
+              >
+                <CardHeader className={`pb-3 ${isFull ? 'bg-gradient-to-r from-destructive/20 to-destructive/10' : 'bg-gradient-to-r from-metro-blue/10 to-metro-green/10'}`}>
                   <div className="flex items-center gap-2">
-                    <ParkingCircle className="h-5 w-5 text-metro-blue" />
+                    <ParkingCircle className={`h-5 w-5 ${isFull ? 'text-destructive' : 'text-metro-blue'}`} />
                     <CardTitle className="text-lg">{station.station_name}</CardTitle>
+                    {isFull && (
+                      <Badge variant="destructive" className="ml-auto">FULL</Badge>
+                    )}
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
@@ -364,16 +469,118 @@ const SmartParking = () => {
               </div>
             </div>
 
+            {/* Red Warning Box - Station Full Alert */}
+            {isSelectedStationFull && selectedStationInfo && (
+              <div 
+                className="animate-fade-in rounded-lg p-4 w-full"
+                style={{
+                  background: '#ffdddd',
+                  borderLeft: '6px solid #ff4d4d',
+                  color: '#b30000',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="h-6 w-6 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-lg">
+                      ⚠️ Parking slots at {selectedStationInfo.station_name} are fully occupied.
+                    </p>
+                    <p className="text-sm mt-1">
+                      {vehicleType === 'two_wheeler' ? 'Two-wheeler' : 'Four-wheeler'} parking is currently unavailable at this station.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Green Suggestion Box - Nearby Stations */}
+            {isSelectedStationFull && nearbyStationsWithSlots.length > 0 && (
+              <div 
+                className="animate-fade-in rounded-lg p-4 w-full mt-4"
+                style={{
+                  background: '#d4edda',
+                  borderLeft: '6px solid #28a745',
+                  color: '#155724',
+                }}
+              >
+                <div className="flex items-start gap-3">
+                  <Navigation className="h-6 w-6 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <p className="font-semibold text-lg mb-3">
+                      ✅ Slots are available at the next nearest stations.
+                    </p>
+                    
+                    <div className="space-y-3">
+                      {nearbyStationsWithSlots.map((station, index) => (
+                        <div 
+                          key={station.station_id} 
+                          className="bg-white/50 rounded-lg p-3 border border-green-200"
+                        >
+                          <div className="flex items-center justify-between flex-wrap gap-2">
+                            <div>
+                              <p className="font-semibold text-base flex items-center gap-2">
+                                <MapPin className="h-4 w-4" />
+                                {station.station_name}
+                                {index === 0 && (
+                                  <Badge className="bg-green-600 text-white text-xs">Nearest</Badge>
+                                )}
+                              </p>
+                              <p className="text-sm mt-1">
+                                📍 Distance: <strong>{station.distance} km</strong> from {selectedStationInfo?.station_name}
+                              </p>
+                            </div>
+                            <div className="text-right">
+                              <div className="flex items-center gap-4 text-sm">
+                                <span className="flex items-center gap-1">
+                                  <Bike className="h-4 w-4" />
+                                  {station.twoWheelerAvailable} slots
+                                </span>
+                                <span className="flex items-center gap-1">
+                                  <Car className="h-4 w-4" />
+                                  {station.fourWheelerAvailable} slots
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          <div className="mt-2 pt-2 border-t border-green-200">
+                            <p className="text-sm">
+                              💡 {vehicleType === 'two_wheeler' 
+                                ? `${station.twoWheelerAvailable} two-wheeler slots available` 
+                                : `${station.fourWheelerAvailable} four-wheeler slots available`
+                              }. Consider booking here!
+                            </p>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="mt-2 bg-white hover:bg-green-50 border-green-400 text-green-700"
+                              onClick={() => handleSelectNearbyStation(station.station_id)}
+                            >
+                              Book at {station.station_name}
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
             <Button 
               onClick={handleBooking} 
-              disabled={isLoading} 
-              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-metro-green to-metro-blue hover:from-metro-green/90 hover:to-metro-blue/90 transition-all duration-300 shadow-lg hover:shadow-xl"
+              disabled={isLoading || isSelectedStationFull} 
+              className="w-full h-14 text-lg font-semibold bg-gradient-to-r from-metro-green to-metro-blue hover:from-metro-green/90 hover:to-metro-blue/90 transition-all duration-300 shadow-lg hover:shadow-xl disabled:opacity-50"
               size="lg"
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">
                   <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
                   Booking...
+                </div>
+              ) : isSelectedStationFull ? (
+                <div className="flex items-center gap-2">
+                  <AlertCircle className="h-5 w-5" />
+                  Station Full - Select Another
                 </div>
               ) : (
                 <div className="flex items-center gap-2">
