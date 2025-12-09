@@ -254,13 +254,22 @@ const Booking = () => {
       });
 
       // Navigate to confirmation page with booking details
+      // Look up station names by ID first, fallback to name match, then use raw value
+      const getStationName = (stationValue: string) => {
+        const byId = stations.find(s => s.id === stationValue);
+        if (byId) return byId.name;
+        const byName = stations.find(s => s.name === stationValue);
+        if (byName) return byName.name;
+        return stationValue; // Fallback to raw value if it's already a name
+      };
+
       navigate("/confirmation", {
         state: {
           ticketBooking,
           parkingBooking,
-          sourceStationName: stations.find(s => s.id === sourceStation)?.name,
-          destinationStationName: stations.find(s => s.id === destinationStation)?.name,
-          parkingStationName: stations.find(s => s.id === parkingStation)?.name
+          sourceStationName: getStationName(sourceStation),
+          destinationStationName: getStationName(destinationStation),
+          parkingStationName: parkingStation ? getStationName(parkingStation) : undefined
         }
       });
 
