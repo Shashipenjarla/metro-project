@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -8,11 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock, Info, Navigation, Bus } from "lucide-react";
+import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock, Info, Navigation, Bus, Train, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react";
 import StationSelector, { METRO_STATIONS as SELECTOR_STATIONS } from "@/components/StationSelector";
 import PageLayout from "@/components/PageLayout";
 import { useJourneyState } from "@/hooks/useJourneyState";
+
+interface TrainArrival {
+  id: string;
+  trainNumber: string;
+  destination: string;
+  platform: number;
+  scheduledTime: string;
+  estimatedTime: string;
+  delayMinutes: number;
+  status: 'on-time' | 'delayed' | 'approaching' | 'cancelled';
+  lineColor: string;
+}
 
 interface Station {
   id: string;
@@ -126,6 +139,13 @@ const Booking = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [prefillSource, setPrefillSource] = useState<string | null>(null);
+  
+  // Live Arrivals state
+  const [liveArrivals, setLiveArrivals] = useState<TrainArrival[]>([]);
+  const [arrivalsLoading, setArrivalsLoading] = useState(false);
+  const [isAutoRefresh, setIsAutoRefresh] = useState(false);
+  const autoRefreshRef = useRef<NodeJS.Timeout | null>(null);
+  
   const navigate = useNavigate();
 
   // Helper function to resolve station value to ID
@@ -179,6 +199,87 @@ const Booking = () => {
   useEffect(() => {
     // Remove auth check - allow access without authentication
   }, []);
+
+  // Fetch live arrivals for source station
+  const fetchLiveArrivals = async () => {
+    if (!sourceStation) return;
+    
+    const stationName = stations.find(s => s.id === sourceStation)?.name || sourceStation;
+    setArrivalsLoading(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('metro-arrivals', {
+        body: { station: stationName }
+      });
+
+      if (error) throw error;
+      setLiveArrivals(data.arrivals || []);
+    } catch (error) {
+      console.error('Error fetching arrivals:', error);
+    } finally {
+      setArrivalsLoading(false);
+    }
+  };
+
+  // Auto-fetch when source station changes
+  useEffect(() => {
+    if (sourceStation) {
+      fetchLiveArrivals();
+    } else {
+      setLiveArrivals([]);
+    }
+  }, [sourceStation]);
+
+  // Auto-refresh handler
+  useEffect(() => {
+    if (isAutoRefresh && sourceStation) {
+      autoRefreshRef.current = setInterval(() => {
+        fetchLiveArrivals();
+      }, 30000); // Refresh every 30 seconds
+    }
+    
+    return () => {
+      if (autoRefreshRef.current) {
+        clearInterval(autoRefreshRef.current);
+        autoRefreshRef.current = null;
+      }
+    };
+  }, [isAutoRefresh, sourceStation]);
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'on-time':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'delayed':
+        return 'bg-red-100 text-red-800 border-red-200';
+      case 'approaching':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'cancelled':
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'on-time':
+        return <CheckCircle className="h-3 w-3" />;
+      case 'delayed':
+        return <AlertTriangle className="h-3 w-3" />;
+      case 'approaching':
+        return <Train className="h-3 w-3" />;
+      default:
+        return <Clock className="h-3 w-3" />;
+    }
+  };
+
+  const formatTime = (timeString: string) => {
+    return new Date(timeString).toLocaleTimeString([], { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+  };
 
   const calculateFare = () => {
     if (!sourceStation || !destinationStation) return 10;
@@ -646,6 +747,115 @@ const Booking = () => {
                 </CardContent>
               )}
             </Card>
+
+            {/* Live Arrivals Section */}
+            {sourceStation && (
+              <Card className="border-border/50">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="flex items-center gap-2 text-lg">
+                      <Train className="h-5 w-5 text-metro-blue" />
+                      Live Arrivals at Source Station
+                    </CardTitle>
+                    {isAutoRefresh && (
+                      <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                        Live
+                      </Badge>
+                    )}
+                  </div>
+                  <CardDescription>
+                    Real-time train arrivals at {stations.find(s => s.id === sourceStation)?.name || sourceStation}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {/* Refresh Controls */}
+                  <div className="flex gap-2">
+                    <Button 
+                      onClick={fetchLiveArrivals} 
+                      disabled={arrivalsLoading}
+                      variant="outline"
+                      size="sm"
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${arrivalsLoading ? 'animate-spin' : ''}`} />
+                      Refresh
+                    </Button>
+                    
+                    {isAutoRefresh ? (
+                      <Button 
+                        onClick={() => setIsAutoRefresh(false)} 
+                        variant="destructive"
+                        size="sm"
+                      >
+                        Stop Auto-refresh
+                      </Button>
+                    ) : (
+                      <Button 
+                        onClick={() => setIsAutoRefresh(true)}
+                        size="sm"
+                      >
+                        Auto-refresh (30s)
+                      </Button>
+                    )}
+                  </div>
+
+                  {/* Arrivals List */}
+                  {arrivalsLoading && liveArrivals.length === 0 ? (
+                    <div className="text-center py-6">
+                      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-3"></div>
+                      <p className="text-sm text-muted-foreground">Loading arrivals...</p>
+                    </div>
+                  ) : liveArrivals.length === 0 ? (
+                    <div className="text-center py-6">
+                      <Train className="h-10 w-10 mx-auto text-muted-foreground mb-3" />
+                      <p className="text-sm text-muted-foreground">No upcoming arrivals found</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {liveArrivals.map((arrival) => (
+                        <div 
+                          key={arrival.id}
+                          className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div 
+                              className="w-3 h-3 rounded-full flex-shrink-0"
+                              style={{ backgroundColor: arrival.lineColor }}
+                            />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">{arrival.trainNumber}</span>
+                                <span className="text-muted-foreground text-xs">→</span>
+                                <span className="text-sm">{arrival.destination}</span>
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                Platform {arrival.platform}
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="text-right space-y-1">
+                            <Badge className={`text-xs ${getStatusColor(arrival.status)}`}>
+                              {getStatusIcon(arrival.status)}
+                              <span className="ml-1 capitalize">{arrival.status}</span>
+                            </Badge>
+                            <div className="text-xs">
+                              <div className="font-medium">
+                                {formatTime(arrival.estimatedTime)}
+                              </div>
+                              {arrival.delayMinutes > 0 && (
+                                <div className="text-red-600">
+                                  +{arrival.delayMinutes} min delay
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
             <Button 
               onClick={handleBooking} 
