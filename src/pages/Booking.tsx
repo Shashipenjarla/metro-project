@@ -7,8 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock, Info } from "lucide-react";
+import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock, Info, Navigation, Bus } from "lucide-react";
 import StationSelector, { METRO_STATIONS as SELECTOR_STATIONS } from "@/components/StationSelector";
 import PageLayout from "@/components/PageLayout";
 import { useJourneyState } from "@/hooks/useJourneyState";
@@ -119,6 +120,9 @@ const Booking = () => {
   const [needsParking, setNeedsParking] = useState(false);
   const [parkingStation, setParkingStation] = useState("");
   const [parkingType, setParkingType] = useState<"two_wheeler" | "four_wheeler">("two_wheeler");
+  const [needsTransport, setNeedsTransport] = useState(false);
+  const [transportLocation, setTransportLocation] = useState<"source" | "destination" | "both">("destination");
+  const [transportType, setTransportType] = useState<"auto" | "cab" | "bus" | "shuttle">("cab");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [prefillSource, setPrefillSource] = useState<string | null>(null);
@@ -269,6 +273,21 @@ const Booking = () => {
         };
       }
 
+      let transportBooking = null;
+      if (needsTransport) {
+        transportBooking = {
+          id: `transport_${Date.now()}`,
+          user_id: user?.id || null,
+          transport_type: transportType,
+          location: transportLocation,
+          source_station: transportLocation === "source" || transportLocation === "both" ? sourceStation : null,
+          destination_station: transportLocation === "destination" || transportLocation === "both" ? destinationStation : null,
+          booking_date: travelDate,
+          booking_time: travelTime,
+          booking_status: "confirmed"
+        };
+      }
+
       toast({
         title: "Booking Confirmed!",
         description: `Your ticket has been booked for ₹${totalAmount}`,
@@ -288,9 +307,12 @@ const Booking = () => {
         state: {
           ticketBooking,
           parkingBooking,
+          transportBooking,
           sourceStationName: getStationName(sourceStation),
           destinationStationName: getStationName(destinationStation),
-          parkingStationName: parkingStation ? getStationName(parkingStation) : undefined
+          parkingStationName: parkingStation ? getStationName(parkingStation) : undefined,
+          transportType: needsTransport ? transportType : undefined,
+          transportLocation: needsTransport ? transportLocation : undefined
         }
       });
 
@@ -436,21 +458,29 @@ const Booking = () => {
             </div>
 
             {/* Parking Option */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="needs-parking"
-                  checked={needsParking}
-                  onCheckedChange={(checked) => setNeedsParking(checked as boolean)}
-                />
-                <Label htmlFor="needs-parking" className="flex items-center gap-2">
-                  <Car className="h-4 w-4" />
-                  I need parking
-                </Label>
-              </div>
+            <Card className="border-border/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="needs-parking"
+                    checked={needsParking}
+                    onCheckedChange={(checked) => {
+                      setNeedsParking(checked as boolean);
+                      // Auto-select source station for parking when enabled
+                      if (checked && sourceStation && !parkingStation) {
+                        setParkingStation(sourceStation);
+                      }
+                    }}
+                  />
+                  <Label htmlFor="needs-parking" className="flex items-center gap-2 text-base font-medium cursor-pointer">
+                    <Car className="h-5 w-5 text-metro-blue" />
+                    I need parking at departure station
+                  </Label>
+                </div>
+              </CardHeader>
 
               {needsParking && (
-                <div className="space-y-4 pl-6 border-l-2 border-border">
+                <CardContent className="space-y-4 pt-0">
                   <div className="space-y-2">
                     <Label>Parking Station</Label>
                     <Select value={parkingStation} onValueChange={setParkingStation}>
@@ -477,21 +507,145 @@ const Booking = () => {
                         <SelectItem value="two_wheeler">
                           <div className="flex items-center gap-2">
                             <Bike className="h-4 w-4" />
-                            Two Wheeler
+                            Two Wheeler (₹20/day)
                           </div>
                         </SelectItem>
                         <SelectItem value="four_wheeler">
                           <div className="flex items-center gap-2">
                             <Car className="h-4 w-4" />
-                            Four Wheeler
+                            Four Wheeler (₹50/day)
                           </div>
                         </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
-                </div>
+
+                  {parkingStation && (
+                    <div className="p-3 bg-metro-green/10 border border-metro-green/20 rounded-lg">
+                      <p className="text-sm text-metro-green">
+                        ✓ Parking will be reserved at {stations.find(s => s.id === parkingStation)?.name || parkingStation}
+                      </p>
+                    </div>
+                  )}
+                </CardContent>
               )}
-            </div>
+            </Card>
+
+            {/* Post Station Transportation Option */}
+            <Card className="border-border/50">
+              <CardHeader className="pb-3">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="needs-transport"
+                    checked={needsTransport}
+                    onCheckedChange={(checked) => setNeedsTransport(checked as boolean)}
+                  />
+                  <Label htmlFor="needs-transport" className="flex items-center gap-2 text-base font-medium cursor-pointer">
+                    <Navigation className="h-5 w-5 text-metro-green" />
+                    I need post-station transportation
+                  </Label>
+                </div>
+              </CardHeader>
+
+              {needsTransport && (
+                <CardContent className="space-y-4 pt-0">
+                  <div className="space-y-3">
+                    <Label>Where do you need transportation?</Label>
+                    <RadioGroup 
+                      value={transportLocation} 
+                      onValueChange={(value) => setTransportLocation(value as "source" | "destination" | "both")}
+                      className="grid grid-cols-1 sm:grid-cols-3 gap-3"
+                    >
+                      <div className="flex items-center space-x-2 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                        <RadioGroupItem value="source" id="transport-source" />
+                        <Label htmlFor="transport-source" className="cursor-pointer flex-1">
+                          <div className="font-medium">At Departure</div>
+                          <div className="text-xs text-muted-foreground">Pickup from source station</div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                        <RadioGroupItem value="destination" id="transport-destination" />
+                        <Label htmlFor="transport-destination" className="cursor-pointer flex-1">
+                          <div className="font-medium">At Arrival</div>
+                          <div className="text-xs text-muted-foreground">Drop at destination</div>
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2 border rounded-lg p-3 cursor-pointer hover:bg-muted/50 transition-colors">
+                        <RadioGroupItem value="both" id="transport-both" />
+                        <Label htmlFor="transport-both" className="cursor-pointer flex-1">
+                          <div className="font-medium">Both Stations</div>
+                          <div className="text-xs text-muted-foreground">Pickup & Drop</div>
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Transportation Type</Label>
+                    <Select value={transportType} onValueChange={(value) => setTransportType(value as "auto" | "cab" | "bus" | "shuttle")}>
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="auto">
+                          <div className="flex items-center gap-2">
+                            🛺 Auto Rickshaw (₹50-100)
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="cab">
+                          <div className="flex items-center gap-2">
+                            <Car className="h-4 w-4" />
+                            Cab (Ola/Uber) (₹100-200)
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="bus">
+                          <div className="flex items-center gap-2">
+                            <Bus className="h-4 w-4" />
+                            TSRTC Bus (₹10-30)
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="shuttle">
+                          <div className="flex items-center gap-2">
+                            🚐 Metro Feeder Shuttle (₹15)
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
+                    <p className="text-sm font-medium mb-1">Transport Summary</p>
+                    <p className="text-xs text-muted-foreground">
+                      {transportLocation === "source" && sourceStation && 
+                        `${transportType.charAt(0).toUpperCase() + transportType.slice(1)} pickup from ${stations.find(s => s.id === sourceStation)?.name || 'source station'}`}
+                      {transportLocation === "destination" && destinationStation && 
+                        `${transportType.charAt(0).toUpperCase() + transportType.slice(1)} drop at ${stations.find(s => s.id === destinationStation)?.name || 'destination station'}`}
+                      {transportLocation === "both" && 
+                        `${transportType.charAt(0).toUpperCase() + transportType.slice(1)} at both stations`}
+                      {!sourceStation && !destinationStation && "Select stations to see transport details"}
+                    </p>
+                  </div>
+
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const targetStation = transportLocation === "source" ? sourceStation : destinationStation;
+                      if (targetStation) {
+                        const stationName = stations.find(s => s.id === targetStation)?.name || targetStation;
+                        navigate('/post-station-transport', { state: { preselectedStation: stationName } });
+                      } else {
+                        navigate('/post-station-transport');
+                      }
+                    }}
+                    className="w-full"
+                  >
+                    <Navigation className="h-4 w-4 mr-2" />
+                    Explore All Transport Options
+                  </Button>
+                </CardContent>
+              )}
+            </Card>
 
             <Button 
               onClick={handleBooking} 
