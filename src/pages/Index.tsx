@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
+import AlertScroller from "@/components/AlertScroller";
 import DashboardGrid from "@/components/DashboardGrid";
 import VoiceAssistant from "@/components/VoiceAssistant";
 import ModalBookTicket from "@/components/ModalBookTicket";
@@ -48,6 +49,9 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-background via-background/50 to-muted/30">
       <Header user={user} />
       <Hero user={user} />
+      <div className="container mx-auto px-4 py-4">
+        <AlertScroller />
+      </div>
       <DashboardGrid user={user} />
       <div className="container mx-auto px-4 py-8" id="voice-assistant">
         <VoiceAssistant />

@@ -285,4 +285,43 @@ All colors MUST be HSL.
   .feature-card {
     @apply transition-smooth hover:shadow-elegant hover:-translate-y-1;
   }
+
+  /* Alert Scroller Styles */
+  .alert-scroller-container {
+    @apply w-full overflow-hidden;
+    background: hsl(45 100% 50%);
+    height: 40px;
+    display: flex;
+    align-items: center;
+    border-radius: 4px;
+  }
+
+  .dark .alert-scroller-container {
+    background: hsl(45 100% 45%);
+  }
+
+  .alert-scroller-track {
+    display: flex;
+    white-space: nowrap;
+    animation: marquee 30s linear infinite;
+  }
+
+  .alert-scroller-text {
+    @apply text-sm font-semibold px-4;
+    color: hsl(0 0% 10%);
+    display: inline-block;
+  }
+
+  @keyframes marquee {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+
+  .alert-scroller-container:hover .alert-scroller-track {
+    animation-play-state: paused;
+  }
 }
