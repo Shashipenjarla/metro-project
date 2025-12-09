@@ -364,29 +364,57 @@ const RouteOptimizer = () => {
               {/* Route Path */}
               <div className="space-y-3">
                 <h3 className="text-lg font-semibold">Route Path</h3>
-                <div className="space-y-2">
+                <div className="space-y-0">
                   {pathResult.path.map((station, index) => {
                     const isFirst = index === 0;
                     const isLast = index === pathResult.path.length - 1;
-                    const line = getStationLine(station);
+                    const currentLine = getStationLine(station);
+                    const prevLine = index > 0 ? getStationLine(pathResult.path[index - 1]) : null;
+                    const isLineChange = prevLine && currentLine && prevLine !== currentLine;
                     
                     return (
-                      <div key={`${station}-${index}`} className="flex items-center gap-3">
-                        <div className="flex flex-col items-center">
-                          <div className={`w-4 h-4 rounded-full ${
-                            isFirst ? 'bg-green-500' : 
-                            isLast ? 'bg-red-500' : 
-                            'bg-blue-500'
-                          }`} />
-                          {!isLast && <div className="w-0.5 h-6 bg-gray-300 mt-1" />}
-                        </div>
-                        <div className="flex items-center gap-3 flex-1">
-                          <Badge className={`text-xs ${getLineColor(line)}`}>
-                            {line || 'N/A'}
-                          </Badge>
-                          <span className="font-medium">{station}</span>
-                          {isFirst && <Badge variant="outline" className="text-green-600 border-green-600">Start</Badge>}
-                          {isLast && <Badge variant="outline" className="text-red-600 border-red-600">End</Badge>}
+                      <div key={`${station}-${index}`}>
+                        {/* Line Change Indicator */}
+                        {isLineChange && (
+                          <div className="flex items-center gap-3 py-2 ml-1.5">
+                            <div className="flex flex-col items-center">
+                              <div className="w-0.5 h-2 bg-muted-foreground/30" />
+                            </div>
+                            <div className="flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 font-medium bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-md border border-amber-200 dark:border-amber-800">
+                              <span>🔄</span>
+                              <span>Change to {currentLine} Line</span>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Station */}
+                        <div className="flex items-center gap-3">
+                          <div className="flex flex-col items-center">
+                            <div className={`w-4 h-4 rounded-full border-2 ${
+                              isFirst ? 'bg-green-500 border-green-600' : 
+                              isLast ? 'bg-red-500 border-red-600' : 
+                              isLineChange ? 'bg-amber-500 border-amber-600' :
+                              currentLine === 'Red' ? 'bg-red-500 border-red-600' :
+                              currentLine === 'Blue' ? 'bg-blue-500 border-blue-600' :
+                              currentLine === 'Green' ? 'bg-green-500 border-green-600' :
+                              'bg-muted border-muted-foreground'
+                            }`} />
+                            {!isLast && <div className={`w-0.5 h-8 mt-0.5 ${
+                              currentLine === 'Red' ? 'bg-red-300' :
+                              currentLine === 'Blue' ? 'bg-blue-300' :
+                              currentLine === 'Green' ? 'bg-green-300' :
+                              'bg-muted-foreground/30'
+                            }`} />}
+                          </div>
+                          <div className="flex items-center gap-3 flex-1 py-1">
+                            <Badge className={`text-xs min-w-[50px] justify-center ${getLineColor(currentLine)}`}>
+                              {currentLine || 'N/A'}
+                            </Badge>
+                            <span className="font-medium">{station}</span>
+                            {isFirst && <Badge variant="outline" className="text-green-600 border-green-600 bg-green-50 dark:bg-green-950/30">Start</Badge>}
+                            {isLast && <Badge variant="outline" className="text-red-600 border-red-600 bg-red-50 dark:bg-red-950/30">End</Badge>}
+                            {isLineChange && <Badge variant="outline" className="text-amber-600 border-amber-600 bg-amber-50 dark:bg-amber-950/30">Transfer</Badge>}
+                          </div>
                         </div>
                       </div>
                     );
