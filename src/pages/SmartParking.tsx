@@ -223,10 +223,19 @@ const SmartParking = () => {
     if (!startTime || !endTime) return 0;
     
     const start = new Date(`2000-01-01T${startTime}`);
-    const end = new Date(`2000-01-01T${endTime}`);
+    let end = new Date(`2000-01-01T${endTime}`);
+    
+    // If end time is before start time, it means parking extends to next day
+    if (end.getTime() <= start.getTime()) {
+      end = new Date(`2000-01-02T${endTime}`); // Add a day
+    }
+    
     const hours = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60));
     
-    return vehicleType === 'two_wheeler' ? hours * 10 : hours * 20;
+    // Ensure minimum 1 hour and always positive
+    const validHours = Math.max(1, hours);
+    
+    return vehicleType === 'two_wheeler' ? validHours * 10 : validHours * 20;
   };
 
   const handleBooking = async () => {
@@ -250,14 +259,8 @@ const SmartParking = () => {
       return;
     }
 
-    if (startTime >= endTime) {
-      toast({
-        title: "Error", 
-        description: "End time must be after start time",
-        variant: "destructive",
-      });
-      return;
-    }
+    // Note: If end time is before start time, it indicates overnight parking
+    // The calculateAmount function handles this case correctly
 
     setIsLoading(true);
 
