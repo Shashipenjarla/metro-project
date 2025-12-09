@@ -11,6 +11,7 @@ import { Calendar, MapPin, Car, Bike, Clock, CheckCircle, AlertCircle, ParkingCi
 import { useNavigate } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import StationSelector, { METRO_STATIONS } from "@/components/StationSelector";
+import { useJourneyState } from "@/hooks/useJourneyState";
 
 interface ParkingAvailability {
   id: string;
@@ -67,6 +68,7 @@ const STATION_DISTANCES: Record<string, Record<string, number>> = {
 
 const SmartParking = () => {
   const navigate = useNavigate();
+  const { setParkingStation } = useJourneyState();
   const [parkingData, setParkingData] = useState<ParkingAvailability[]>([]);
   const [userBookings, setUserBookings] = useState<ParkingBooking[]>([]);
   const [selectedStation, setSelectedStation] = useState("");
@@ -282,6 +284,13 @@ const SmartParking = () => {
         title: "Success",
         description: `Parking slot ${slotNumber} booked successfully!`,
       });
+
+      // Save the parking station to journey state for ticket booking
+      const bookedStationName = selectedStationData.station_name;
+      const stationForBooking = METRO_STATIONS.find(s => s.name === bookedStationName);
+      if (stationForBooking) {
+        setParkingStation(stationForBooking.id);
+      }
 
       // Reset form
       setSelectedStation("");

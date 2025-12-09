@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock } from "lucide-react";
+import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock, Info } from "lucide-react";
 import StationSelector, { METRO_STATIONS as SELECTOR_STATIONS } from "@/components/StationSelector";
 import PageLayout from "@/components/PageLayout";
+import { useJourneyState } from "@/hooks/useJourneyState";
 
 interface Station {
   id: string;
@@ -107,6 +108,8 @@ const METRO_STATIONS: Station[] = [
 ];
 
 const Booking = () => {
+  const location = useLocation();
+  const { getBookingSource, getBookingDestination, clearJourneyState } = useJourneyState();
   const [stations] = useState<Station[]>(METRO_STATIONS);
   const [sourceStation, setSourceStation] = useState("");
   const [destinationStation, setDestinationStation] = useState("");
@@ -118,16 +121,39 @@ const Booking = () => {
   const [parkingType, setParkingType] = useState<"two_wheeler" | "four_wheeler">("two_wheeler");
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
+  const [prefillSource, setPrefillSource] = useState<string | null>(null);
   const navigate = useNavigate();
+
+  // Check for prefilled stations from Route Optimizer or Smart Parking
+  useEffect(() => {
+    // Priority 1: Check navigation state (from Route Optimizer "Book This Journey" button)
+    const navState = location.state as { source?: string; destination?: string } | null;
+    if (navState?.source) {
+      setSourceStation(navState.source);
+      setPrefillSource('Route Optimizer');
+    }
+    if (navState?.destination) {
+      setDestinationStation(navState.destination);
+    }
+
+    // Priority 2: Check journey state (from localStorage)
+    if (!navState?.source) {
+      const storedSource = getBookingSource();
+      const storedDest = getBookingDestination();
+      
+      if (storedSource) {
+        setSourceStation(storedSource);
+        setPrefillSource(storedDest ? 'Route Optimizer' : 'Smart Parking');
+      }
+      if (storedDest) {
+        setDestinationStation(storedDest);
+      }
+    }
+  }, [location.state]);
 
   useEffect(() => {
     // Remove auth check - allow access without authentication
   }, []);
-
-  const checkAuth = async () => {
-    const { data: { session } } = await supabase.auth.getSession();
-    setUser(session?.user || null);
-  };
 
   const calculateFare = () => {
     if (!sourceStation || !destinationStation) return 10;
@@ -265,6 +291,29 @@ const Booking = () => {
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
+            {/* Prefill Info Banner */}
+            {prefillSource && (
+              <div className="flex items-center gap-2 p-3 bg-metro-blue/10 border border-metro-blue/20 rounded-lg">
+                <Info className="h-4 w-4 text-metro-blue" />
+                <span className="text-sm text-metro-blue">
+                  Stations pre-filled from {prefillSource}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setSourceStation("");
+                    setDestinationStation("");
+                    setPrefillSource(null);
+                    clearJourneyState();
+                  }}
+                  className="ml-auto text-xs h-6"
+                >
+                  Clear
+                </Button>
+              </div>
+            )}
+
             {/* Station Selection */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <StationSelector
