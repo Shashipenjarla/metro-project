@@ -667,6 +667,22 @@ const SmartParking = () => {
                 </div>
               )}
             </Button>
+
+            {/* Book Ticket Link */}
+            {selectedStation && !isSelectedStationFull && (
+              <div className="text-center mt-3">
+                <button
+                  onClick={() => {
+                    // Save the selected station to journey state
+                    setParkingStation(selectedStation);
+                    navigate('/booking');
+                  }}
+                  className="text-metro-green hover:text-metro-green/80 hover:underline text-sm font-medium cursor-pointer transition-colors"
+                >
+                  → Also book ticket for this ride
+                </button>
+              </div>
+            )}
           </CardContent>
         </Card>
 
