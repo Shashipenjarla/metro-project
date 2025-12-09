@@ -609,7 +609,7 @@ const Booking = () => {
                   />
                   <Label htmlFor="needs-parking" className="flex items-center gap-2 text-base font-medium cursor-pointer">
                     <Car className="h-5 w-5 text-metro-blue" />
-                    I need parking at departure station
+                    Need Parking?
                   </Label>
                 </div>
               </CardHeader>
@@ -716,36 +716,33 @@ const Booking = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Transportation Type</Label>
-                    <Select value={transportType} onValueChange={(value) => setTransportType(value as "auto" | "cab" | "bus" | "shuttle")}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="auto">
-                          <div className="flex items-center gap-2">
-                            🛺 Auto Rickshaw (₹50-100)
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="cab">
-                          <div className="flex items-center gap-2">
-                            <Car className="h-4 w-4" />
-                            Cab (Ola/Uber) (₹100-200)
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="bus">
-                          <div className="flex items-center gap-2">
-                            <Bus className="h-4 w-4" />
-                            TSRTC Bus (₹10-30)
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="shuttle">
-                          <div className="flex items-center gap-2">
-                            🚐 Metro Feeder Shuttle (₹15)
-                          </div>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <Label>Book a Ride</Label>
+                    <div className="grid grid-cols-3 gap-3">
+                      <Button
+                        variant="outline"
+                        className="h-12 flex flex-col items-center justify-center gap-1"
+                        onClick={() => window.open('https://m.uber.com/', '_blank')}
+                      >
+                        <Car className="h-4 w-4" />
+                        <span className="text-xs">Uber</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-12 flex flex-col items-center justify-center gap-1"
+                        onClick={() => window.open('https://www.olacabs.com/', '_blank')}
+                      >
+                        <Car className="h-4 w-4" />
+                        <span className="text-xs">Ola</span>
+                      </Button>
+                      <Button
+                        variant="outline"
+                        className="h-12 flex flex-col items-center justify-center gap-1"
+                        onClick={() => window.open('https://www.rapido.bike/', '_blank')}
+                      >
+                        <Car className="h-4 w-4" />
+                        <span className="text-xs">Rapido</span>
+                      </Button>
+                    </div>
                   </div>
 
                   <div className="p-3 bg-primary/10 border border-primary/20 rounded-lg">
