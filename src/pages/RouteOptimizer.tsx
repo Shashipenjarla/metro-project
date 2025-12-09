@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Clock, IndianRupee, Route, Zap, TrendingUp, Ruler } from "lucide-react";
+import { Clock, IndianRupee, Route, Zap, TrendingUp, Ruler, MapPinPlus } from "lucide-react";
 import StationSelector from "@/components/StationSelector";
 import { METRO_STATIONS } from "@/components/StationSelector";
 import PageLayout from "@/components/PageLayout";
@@ -14,6 +14,7 @@ import {
   getStationLine,
   PathMetric
 } from "@/services/metro";
+import { useJourneyState } from "@/hooks/useJourneyState";
 
 interface PathResult {
   path: string[];
@@ -25,16 +26,41 @@ interface PathResult {
   optimizedBy: PathMetric;
 }
 
+interface CombinedPathResult {
+  leg1: PathResult;
+  leg2: PathResult;
+  combined: {
+    totalDistance: number;
+    totalTime: number;
+    totalFare: number;
+    totalStations: number;
+    totalTransfers: number;
+  };
+}
+
 const RouteOptimizer = () => {
   const [sourceStation, setSourceStation] = useState("");
   const [destinationStation, setDestinationStation] = useState("");
+  const [intermediateStation, setIntermediateStation] = useState("");
   const [pathResult, setPathResult] = useState<PathResult | null>(null);
+  const [combinedResult, setCombinedResult] = useState<CombinedPathResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [optimizeBy, setOptimizeBy] = useState<PathMetric>("time");
   const navigate = useNavigate();
+  const { setRouteStations } = useJourneyState();
 
   const pathService = getShortestPathService();
 
+  // Save route to journey state when a route is found
+  useEffect(() => {
+    if (pathResult || combinedResult) {
+      setRouteStations(sourceStation, destinationStation);
+    }
+  }, [pathResult, combinedResult, sourceStation, destinationStation]);
+
+  /**
+   * Find optimal route using the ShortestPathService
+   */
   /**
    * Find optimal route using the ShortestPathService
    */
@@ -58,14 +84,89 @@ const RouteOptimizer = () => {
     }
 
     setLoading(true);
+    setCombinedResult(null);
+    setPathResult(null);
 
     // Convert station IDs to station names
     const sourceStationName = METRO_STATIONS.find((s: any) => s.id === sourceStation)?.name || sourceStation;
     const destinationStationName = METRO_STATIONS.find((s: any) => s.id === destinationStation)?.name || destinationStation;
+    const intermediateStationName = intermediateStation 
+      ? METRO_STATIONS.find((s: any) => s.id === intermediateStation)?.name || intermediateStation
+      : null;
 
     // Simulate processing delay for UX
     setTimeout(() => {
-      // Use the modular ShortestPathService
+      // If intermediate station is provided, calculate two-leg route
+      if (intermediateStationName && intermediateStation !== sourceStation && intermediateStation !== destinationStation) {
+        const leg1Response = optimizeBy === 'distance' 
+          ? pathService.getShortestPathByDistance(sourceStationName, intermediateStationName)
+          : pathService.getShortestPathByTime(sourceStationName, intermediateStationName);
+
+        const leg2Response = optimizeBy === 'distance' 
+          ? pathService.getShortestPathByDistance(intermediateStationName, destinationStationName)
+          : pathService.getShortestPathByTime(intermediateStationName, destinationStationName);
+
+        if (!leg1Response.success || !leg1Response.data) {
+          toast({
+            title: "No route found",
+            description: leg1Response.error || `Unable to find route from source to intermediate station`,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
+        if (!leg2Response.success || !leg2Response.data) {
+          toast({
+            title: "No route found", 
+            description: leg2Response.error || `Unable to find route from intermediate to destination station`,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+
+        const leg1: PathResult = {
+          path: leg1Response.data.path,
+          noOfStations: leg1Response.data.noOfStations,
+          totalDistance: leg1Response.data.totalDistance,
+          totalTime: leg1Response.data.totalTime,
+          fare: leg1Response.data.fare,
+          transfers: leg1Response.data.transfers,
+          optimizedBy: leg1Response.data.optimizedBy
+        };
+
+        const leg2: PathResult = {
+          path: leg2Response.data.path,
+          noOfStations: leg2Response.data.noOfStations,
+          totalDistance: leg2Response.data.totalDistance,
+          totalTime: leg2Response.data.totalTime,
+          fare: leg2Response.data.fare,
+          transfers: leg2Response.data.transfers,
+          optimizedBy: leg2Response.data.optimizedBy
+        };
+
+        setCombinedResult({
+          leg1,
+          leg2,
+          combined: {
+            totalDistance: leg1.totalDistance + leg2.totalDistance,
+            totalTime: leg1.totalTime + leg2.totalTime,
+            totalFare: leg1.fare + leg2.fare,
+            totalStations: leg1.noOfStations + leg2.noOfStations - 1, // Subtract 1 for intermediate counted twice
+            totalTransfers: leg1.transfers + leg2.transfers
+          }
+        });
+
+        setLoading(false);
+        toast({
+          title: "Route Found!",
+          description: `Two-leg route via ${intermediateStationName} calculated`,
+        });
+        return;
+      }
+
+      // Standard single-leg route
       const response = optimizeBy === 'distance' 
         ? pathService.getShortestPathByDistance(sourceStationName, destinationStationName)
         : pathService.getShortestPathByTime(sourceStationName, destinationStationName);
@@ -113,7 +214,9 @@ const RouteOptimizer = () => {
   const clearRoute = () => {
     setSourceStation("");
     setDestinationStation("");
+    setIntermediateStation("");
     setPathResult(null);
+    setCombinedResult(null);
   };
 
   const formatDistance = (meters: number): string => {
@@ -165,6 +268,25 @@ const RouteOptimizer = () => {
                 label="To Station"
                 placeholder="Search destination station..."
               />
+            </div>
+
+            {/* Optional Intermediate Station */}
+            <div className="border border-dashed border-muted-foreground/30 rounded-lg p-4 bg-muted/20">
+              <div className="flex items-center gap-2 mb-3">
+                <MapPinPlus className="h-5 w-5 text-metro-green" />
+                <span className="font-medium text-sm">Optional Intermediate Station</span>
+              </div>
+              <StationSelector
+                value={intermediateStation}
+                onValueChange={setIntermediateStation}
+                label=""
+                placeholder="Add a stop along the way (optional)..."
+              />
+              {intermediateStation && (
+                <p className="text-xs text-muted-foreground mt-2">
+                  Route will be calculated in two parts: Source → {METRO_STATIONS.find(s => s.id === intermediateStation)?.name} → Destination
+                </p>
+              )}
             </div>
 
             <div className="flex gap-4">
@@ -238,18 +360,6 @@ const RouteOptimizer = () => {
                 </Card>
               </div>
 
-              {/* JSON Output Preview */}
-              <div className="p-4 bg-slate-100 dark:bg-slate-800 rounded-lg">
-                <h4 className="font-semibold text-sm mb-2 text-muted-foreground">API Response Format</h4>
-                <pre className="text-xs overflow-x-auto">
-{JSON.stringify({
-  path: pathResult.path,
-  totalDistance: pathResult.totalDistance,
-  totalTime: pathResult.totalTime,
-  noOfStations: pathResult.noOfStations
-}, null, 2)}
-                </pre>
-              </div>
 
               {/* Route Path */}
               <div className="space-y-3">
@@ -301,6 +411,108 @@ const RouteOptimizer = () => {
                     source: sourceStation, 
                     destination: destinationStation,
                     route: pathResult
+                  } 
+                })} 
+                className="w-full"
+                size="lg"
+              >
+                Book This Journey
+              </Button>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Combined Route Result (with intermediate station) */}
+        {combinedResult && (
+          <Card className="glass-effect border-white/20 shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-metro-green/10 via-metro-blue/10 to-metro-red/10">
+              <CardTitle className="flex items-center gap-2 text-xl">
+                <TrendingUp className="h-6 w-6 text-metro-green" />
+                Two-Leg Route Found
+                <Badge variant="secondary" className="ml-2">Via Intermediate</Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Combined Summary */}
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <Card className="bg-gradient-to-br from-metro-blue/20 to-metro-blue/10 border-metro-blue/30 p-4 text-center">
+                  <div className="text-3xl font-bold text-metro-blue">{combinedResult.combined.totalStations}</div>
+                  <div className="text-sm text-muted-foreground font-medium">Total Stations</div>
+                </Card>
+                <Card className="bg-gradient-to-br from-metro-green/20 to-metro-green/10 border-metro-green/30 p-4 text-center">
+                  <div className="text-3xl font-bold text-metro-green flex items-center justify-center gap-1">
+                    <Clock className="h-6 w-6" />
+                    {combinedResult.combined.totalTime}
+                  </div>
+                  <div className="text-sm text-muted-foreground font-medium">Minutes</div>
+                </Card>
+                <Card className="bg-gradient-to-br from-purple-500/20 to-purple-500/10 border-purple-500/30 p-4 text-center">
+                  <div className="text-2xl font-bold text-purple-600 flex items-center justify-center gap-1">
+                    <Ruler className="h-5 w-5" />
+                    {formatDistance(combinedResult.combined.totalDistance)}
+                  </div>
+                  <div className="text-sm text-muted-foreground font-medium">Distance</div>
+                </Card>
+                <Card className="bg-gradient-to-br from-accent-yellow/20 to-accent-yellow/10 border-accent-yellow/30 p-4 text-center">
+                  <div className="text-3xl font-bold text-accent-yellow flex items-center justify-center gap-1">
+                    <IndianRupee className="h-6 w-6" />
+                    {combinedResult.combined.totalFare}
+                  </div>
+                  <div className="text-sm text-muted-foreground font-medium">Total Fare</div>
+                </Card>
+                <Card className="bg-gradient-to-br from-metro-red/20 to-metro-red/10 border-metro-red/30 p-4 text-center">
+                  <div className="text-3xl font-bold text-metro-red">{combinedResult.combined.totalTransfers}</div>
+                  <div className="text-sm text-muted-foreground font-medium">Transfers</div>
+                </Card>
+              </div>
+
+              {/* Leg 1: Source to Intermediate */}
+              <div className="border rounded-lg p-4 bg-muted/20">
+                <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+                  <Badge className="bg-metro-blue">Leg 1</Badge>
+                  {combinedResult.leg1.path[0]} → {combinedResult.leg1.path[combinedResult.leg1.path.length - 1]}
+                </h3>
+                <div className="flex flex-wrap gap-4 text-sm mb-3">
+                  <span>{combinedResult.leg1.noOfStations} stations</span>
+                  <span>{combinedResult.leg1.totalTime} min</span>
+                  <span>₹{combinedResult.leg1.fare}</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {combinedResult.leg1.path.map((station, index) => (
+                    <Badge key={`leg1-${index}`} variant={index === 0 ? "default" : index === combinedResult.leg1.path.length - 1 ? "secondary" : "outline"}>
+                      {station}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Leg 2: Intermediate to Destination */}
+              <div className="border rounded-lg p-4 bg-muted/20">
+                <h3 className="text-lg font-semibold flex items-center gap-2 mb-3">
+                  <Badge className="bg-metro-green">Leg 2</Badge>
+                  {combinedResult.leg2.path[0]} → {combinedResult.leg2.path[combinedResult.leg2.path.length - 1]}
+                </h3>
+                <div className="flex flex-wrap gap-4 text-sm mb-3">
+                  <span>{combinedResult.leg2.noOfStations} stations</span>
+                  <span>{combinedResult.leg2.totalTime} min</span>
+                  <span>₹{combinedResult.leg2.fare}</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {combinedResult.leg2.path.map((station, index) => (
+                    <Badge key={`leg2-${index}`} variant={index === 0 ? "secondary" : index === combinedResult.leg2.path.length - 1 ? "default" : "outline"}>
+                      {station}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+
+              {/* Book Journey Button */}
+              <Button 
+                onClick={() => navigate('/booking', { 
+                  state: { 
+                    source: sourceStation, 
+                    destination: destinationStation,
+                    route: combinedResult
                   } 
                 })} 
                 className="w-full"
