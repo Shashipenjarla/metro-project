@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Car, Bike, Clock, CheckCircle, AlertCircle, ParkingCircle, CreditCard, AlertTriangle, Navigation } from "lucide-react";
+import { Calendar, MapPin, Car, Bike, Clock, CheckCircle, AlertCircle, ParkingCircle, CreditCard, AlertTriangle, Navigation, Train } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import PageLayout from "@/components/PageLayout";
 import StationSelector, { METRO_STATIONS } from "@/components/StationSelector";
@@ -43,6 +43,23 @@ interface NearbyStation {
   twoWheelerAvailable: number;
   fourWheelerAvailable: number;
 }
+
+interface MetroArrival {
+  trainId: string;
+  destination: string;
+  stationName: string;
+  arrivalTime: string;
+  line: 'red' | 'blue' | 'green';
+}
+
+// Simulated next metro arrivals data
+const NEXT_ARRIVALS: MetroArrival[] = [
+  { trainId: "R-101", destination: "LB Nagar", stationName: "Dilsukhnagar", arrivalTime: "2 min", line: "red" },
+  { trainId: "R-102", destination: "Miyapur", stationName: "Chaitanyapuri", arrivalTime: "4 min", line: "red" },
+  { trainId: "B-205", destination: "Nagole", stationName: "Victoria Memorial", arrivalTime: "3 min", line: "blue" },
+  { trainId: "R-103", destination: "LB Nagar", stationName: "Victoria Memorial", arrivalTime: "6 min", line: "red" },
+  { trainId: "G-301", destination: "JBS", stationName: "Dilsukhnagar", arrivalTime: "5 min", line: "green" },
+];
 
 // Simulated distances between stations (in km)
 const STATION_DISTANCES: Record<string, Record<string, number>> = {
@@ -343,6 +360,10 @@ const SmartParking = () => {
             const fourWheeler = parkingData.find(p => p.station_id === station.station_id && p.vehicle_type === 'four_wheeler');
             const isFull = isStationFullyOccupied(station.station_id);
             
+            const twoWheelerAvailable = twoWheeler ? twoWheeler.total_slots - twoWheeler.occupied_slots : 0;
+            const fourWheelerAvailable = fourWheeler ? fourWheeler.total_slots - fourWheeler.occupied_slots : 0;
+            const totalAvailable = twoWheelerAvailable + fourWheelerAvailable;
+            
             return (
               <Card 
                 key={station.station_id} 
@@ -352,12 +373,21 @@ const SmartParking = () => {
                   <div className="flex items-center gap-2">
                     <ParkingCircle className={`h-5 w-5 ${isFull ? 'text-destructive' : 'text-metro-blue'}`} />
                     <CardTitle className="text-lg">{station.station_name}</CardTitle>
-                    {isFull && (
-                      <Badge variant="destructive" className="ml-auto">FULL</Badge>
+                  </div>
+                  {/* Station Status Badge */}
+                  <div className="mt-2">
+                    {isFull ? (
+                      <Badge variant="destructive" className="text-sm px-3 py-1 font-bold">
+                        FULL
+                      </Badge>
+                    ) : (
+                      <Badge className="bg-metro-green text-white text-sm px-3 py-1 font-semibold">
+                        {totalAvailable} Slots Available
+                      </Badge>
                     )}
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-3">
+                <CardContent className="space-y-3 pt-4">
                   {twoWheeler && (
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
@@ -365,10 +395,11 @@ const SmartParking = () => {
                         <span className="text-sm">Two Wheeler</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">{twoWheeler.occupied_slots}/{twoWheeler.total_slots}</span>
-                        <Badge variant={getAvailabilityStatus(twoWheeler.occupied_slots, twoWheeler.total_slots).color}>
-                          {getAvailabilityStatus(twoWheeler.occupied_slots, twoWheeler.total_slots).status}
-                        </Badge>
+                        {twoWheelerAvailable > 0 ? (
+                          <span className="text-sm font-medium text-metro-green">{twoWheelerAvailable} available</span>
+                        ) : (
+                          <span className="text-sm font-medium text-destructive">Full</span>
+                        )}
                       </div>
                     </div>
                   )}
@@ -379,10 +410,11 @@ const SmartParking = () => {
                         <span className="text-sm">Four Wheeler</span>
                       </div>
                       <div className="flex items-center gap-2">
-                        <span className="text-sm">{fourWheeler.occupied_slots}/{fourWheeler.total_slots}</span>
-                        <Badge variant={getAvailabilityStatus(fourWheeler.occupied_slots, fourWheeler.total_slots).color}>
-                          {getAvailabilityStatus(fourWheeler.occupied_slots, fourWheeler.total_slots).status}
-                        </Badge>
+                        {fourWheelerAvailable > 0 ? (
+                          <span className="text-sm font-medium text-metro-green">{fourWheelerAvailable} available</span>
+                        ) : (
+                          <span className="text-sm font-medium text-destructive">Full</span>
+                        )}
                       </div>
                     </div>
                   )}
@@ -391,6 +423,53 @@ const SmartParking = () => {
             );
           })}
         </div>
+
+        {/* Next Metro Arrivals */}
+        <Card className="glass-effect border-white/20 shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-metro-red/10 to-metro-blue/10">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Train className="h-6 w-6 text-metro-red" />
+              Next Metro Arrivals
+            </CardTitle>
+            <CardDescription>
+              Upcoming metro trains at parking stations
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-4">
+            <div className="space-y-3">
+              {NEXT_ARRIVALS.map((arrival, index) => (
+                <div 
+                  key={`${arrival.trainId}-${index}`}
+                  className="flex items-center justify-between p-3 rounded-lg border bg-card/50 hover:bg-card/80 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className={`w-3 h-3 rounded-full ${
+                      arrival.line === 'red' ? 'bg-metro-red' : 
+                      arrival.line === 'blue' ? 'bg-metro-blue' : 'bg-metro-green'
+                    }`} />
+                    <div>
+                      <p className="font-medium text-sm">
+                        Train {arrival.trainId} → {arrival.destination}
+                      </p>
+                      <p className="text-sm">
+                        Arriving at: <span className="font-bold text-metro-red">{arrival.stationName}</span>
+                      </p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <Badge 
+                      variant="outline" 
+                      className="border-metro-red text-metro-red font-semibold"
+                    >
+                      <Clock className="h-3 w-3 mr-1" />
+                      {arrival.arrivalTime}
+                    </Badge>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Booking Form */}
         <Card className="glass-effect border-white/20 shadow-lg">
