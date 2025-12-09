@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
 import { CreditCard, Wallet, History, Plus, ArrowLeft, User, CheckCircle } from "lucide-react";
+import { useWallet } from "@/hooks/useWallet";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Mock smart card data for verification
 const SMART_CARDS: Record<string, { balance: number; lastUsed: string; status: string; holderName?: string }> = {
@@ -54,7 +56,9 @@ const SmartCard = () => {
     address: "",
     idProofNumber: "",
   });
+  const [payWithWallet, setPayWithWallet] = useState(false);
   const navigate = useNavigate();
+  const { balance: walletBalance, deductMoney, isAuthenticated: walletAuthenticated } = useWallet();
 
   useEffect(() => {
     checkAuth();
@@ -125,6 +129,25 @@ const SmartCard = () => {
     }
 
     setLoading(true);
+
+    // Handle wallet payment
+    if (payWithWallet) {
+      if (walletBalance < amount) {
+        toast({
+          title: "Insufficient Wallet Balance",
+          description: `Your wallet balance (₹${walletBalance}) is less than the recharge amount (₹${amount})`,
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
+      
+      const paymentSuccess = await deductMoney(amount, 'Smart Card Recharge', `Recharged card: ${cardData.cardNumber}`);
+      if (!paymentSuccess) {
+        setLoading(false);
+        return;
+      }
+    }
 
     setTimeout(() => {
       const newBalance = cardData.balance + amount;

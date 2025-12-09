@@ -10,10 +10,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "@/hooks/use-toast";
-import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock, Info, Navigation, Bus, Train, RefreshCw, AlertTriangle, CheckCircle } from "lucide-react";
+import { Calendar, MapPin, Users, Car, Bike, Ticket, CreditCard, Clock, Info, Navigation, Bus, Train, RefreshCw, AlertTriangle, CheckCircle, Wallet } from "lucide-react";
 import StationSelector, { METRO_STATIONS as SELECTOR_STATIONS } from "@/components/StationSelector";
 import PageLayout from "@/components/PageLayout";
 import { useJourneyState } from "@/hooks/useJourneyState";
+import { useWallet } from "@/hooks/useWallet";
 
 interface TrainArrival {
   id: string;
@@ -139,12 +140,16 @@ const Booking = () => {
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [prefillSource, setPrefillSource] = useState<string | null>(null);
+  const [payWithWallet, setPayWithWallet] = useState(false);
   
   // Live Arrivals state
   const [liveArrivals, setLiveArrivals] = useState<TrainArrival[]>([]);
   const [arrivalsLoading, setArrivalsLoading] = useState(false);
   const [isAutoRefresh, setIsAutoRefresh] = useState(false);
   const autoRefreshRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // Wallet hook
+  const { balance: walletBalance, deductMoney, isAuthenticated: walletAuthenticated } = useWallet();
   
   const navigate = useNavigate();
 
@@ -335,6 +340,25 @@ const Booking = () => {
     try {
       const fare = calculateFare();
       const totalAmount = fare * passengerCount;
+
+      // Handle wallet payment
+      if (payWithWallet) {
+        if (walletBalance < totalAmount) {
+          toast({
+            title: "Insufficient Balance",
+            description: `Your wallet balance (₹${walletBalance}) is less than the total amount (₹${totalAmount})`,
+            variant: "destructive",
+          });
+          setLoading(false);
+          return;
+        }
+        
+        const paymentSuccess = await deductMoney(totalAmount, 'Ticket Booking', `Metro ticket: ${sourceStation} to ${destinationStation}`);
+        if (!paymentSuccess) {
+          setLoading(false);
+          return;
+        }
+      }
 
       // Generate ticket data
       const ticketId = `TKT-${Date.now()}`;
@@ -888,13 +912,51 @@ const Booking = () => {
               </Card>
             )}
 
+            {/* Wallet Payment Option */}
+            {walletAuthenticated && sourceStation && destinationStation && sourceStation !== destinationStation && (
+              <Card className="border-border/50">
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="pay-wallet"
+                      checked={payWithWallet}
+                      onCheckedChange={(checked) => setPayWithWallet(checked as boolean)}
+                    />
+                    <Label htmlFor="pay-wallet" className="flex items-center gap-2 text-base font-medium cursor-pointer">
+                      <Wallet className="h-5 w-5 text-orange-500" />
+                      Pay Using Wallet
+                    </Label>
+                  </div>
+                  {payWithWallet && (
+                    <div className="mt-3 p-3 bg-orange-50 dark:bg-orange-900/20 border border-orange-200 dark:border-orange-800 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-muted-foreground">Wallet Balance:</span>
+                        <span className={`font-semibold ${walletBalance >= calculateFare() * passengerCount ? 'text-green-600' : 'text-red-600'}`}>
+                          ₹{walletBalance}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between mt-1">
+                        <span className="text-sm text-muted-foreground">Amount to Pay:</span>
+                        <span className="font-semibold">₹{calculateFare() * passengerCount}</span>
+                      </div>
+                      {walletBalance < calculateFare() * passengerCount && (
+                        <p className="text-xs text-red-600 mt-2">
+                          Insufficient balance. Please add ₹{(calculateFare() * passengerCount) - walletBalance} more.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+
             <Button 
               onClick={handleBooking} 
               className="w-full" 
-              disabled={loading}
+              disabled={loading || (payWithWallet && walletBalance < calculateFare() * passengerCount)}
               size="lg"
             >
-              {loading ? "Processing..." : "Confirm Booking"}
+              {loading ? "Processing..." : payWithWallet ? `Pay ₹${calculateFare() * passengerCount} with Wallet` : "Confirm Booking"}
             </Button>
           </CardContent>
         </Card>
