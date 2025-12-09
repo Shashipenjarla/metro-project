@@ -8,8 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, Plus, ArrowLeft, QrCode, Wallet, History, User, Camera } from "lucide-react";
+import { CreditCard, Plus, ArrowLeft, QrCode, Wallet, History, User, CheckCircle, Search, XCircle } from "lucide-react";
 import QRCode from "qrcode";
+
+// Mock virtual cards for verification testing
+const MOCK_VIRTUAL_CARDS: Record<string, { holderName: string; balance: number; status: string }> = {
+  "VC12345678": { holderName: "Demo User 1", balance: 50000, status: "active" },
+  "VC87654321": { holderName: "Demo User 2", balance: 25000, status: "active" },
+  "VC11223344": { holderName: "Demo User 3", balance: 100000, status: "active" },
+};
 
 interface VirtualCardData {
   id: string;
@@ -37,7 +44,11 @@ const VirtualCard = () => {
   const [loading, setLoading] = useState(false);
   const [showCreateCard, setShowCreateCard] = useState(false);
   const [showTopUp, setShowTopUp] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
   const [topUpAmount, setTopUpAmount] = useState("");
+  const [topUpCardNumber, setTopUpCardNumber] = useState("");
+  const [verifyCardNumber, setVerifyCardNumber] = useState("");
+  const [verificationResult, setVerificationResult] = useState<{ valid: boolean; data?: any } | null>(null);
   const [holderName, setHolderName] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -178,6 +189,45 @@ const VirtualCard = () => {
     }
   };
 
+  const handleVerifyCard = () => {
+    if (!verifyCardNumber.trim()) {
+      toast({
+        title: "Card Number Required",
+        description: "Please enter a virtual card number to verify",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    setTimeout(() => {
+      const mockCard = MOCK_VIRTUAL_CARDS[verifyCardNumber.toUpperCase()];
+      
+      if (mockCard) {
+        setVerificationResult({
+          valid: true,
+          data: {
+            cardNumber: verifyCardNumber.toUpperCase(),
+            ...mockCard
+          }
+        });
+        toast({
+          title: "Card Verified – Active",
+          description: "This virtual card is valid and active",
+        });
+      } else {
+        setVerificationResult({ valid: false });
+        toast({
+          title: "Invalid Card Number",
+          description: "The card number you entered is not valid",
+          variant: "destructive",
+        });
+      }
+      setLoading(false);
+    }, 1500);
+  };
+
   const handleTopUp = async () => {
     const amount = parseInt(topUpAmount);
     if (!amount || amount < 10 || amount > 5000) {
@@ -189,52 +239,84 @@ const VirtualCard = () => {
       return;
     }
 
-    if (!virtualCard) return;
+    // Check if using a specific card number or the user's own card
+    const cardNumberToTopUp = topUpCardNumber.trim().toUpperCase() || virtualCard?.card_number;
+
+    if (!cardNumberToTopUp) {
+      toast({
+        title: "Card Number Required",
+        description: "Please enter a virtual card number",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setLoading(true);
 
     try {
-      // Simulate UPI payment processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      const newBalance = virtualCard.balance + (amount * 100); // Convert to paise
+      // Check if the card exists in mock data
+      const mockCard = MOCK_VIRTUAL_CARDS[cardNumberToTopUp];
       
-      // Update card balance
-      const { error: updateError } = await supabase
-        .from('virtual_cards')
-        .update({ balance: newBalance })
-        .eq('id', virtualCard.id);
+      // If it's the user's own card
+      if (virtualCard && cardNumberToTopUp === virtualCard.card_number) {
+        // Simulate UPI payment processing
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      if (updateError) throw updateError;
+        const newBalance = virtualCard.balance + (amount * 100);
+        
+        const { error: updateError } = await supabase
+          .from('virtual_cards')
+          .update({ balance: newBalance })
+          .eq('id', virtualCard.id);
 
-      // Add transaction record
-      const { error: transactionError } = await supabase
-        .from('virtual_card_transactions')
-        .insert([
-          {
-            card_id: virtualCard.id,
-            user_id: user.id,
-            amount: amount * 100,
-            transaction_type: 'topup',
-            description: `UPI Top-up of ₹${amount}`,
-            payment_method: 'UPI',
-            status: 'completed'
-          }
-        ]);
+        if (updateError) throw updateError;
 
-      if (transactionError) throw transactionError;
+        const { error: transactionError } = await supabase
+          .from('virtual_card_transactions')
+          .insert([
+            {
+              card_id: virtualCard.id,
+              user_id: user.id,
+              amount: amount * 100,
+              transaction_type: 'topup',
+              description: `UPI Top-up of ₹${amount}`,
+              payment_method: 'UPI',
+              status: 'completed'
+            }
+          ]);
 
-      // Update local state
-      setVirtualCard({ ...virtualCard, balance: newBalance });
-      loadTransactions();
-      
-      toast({
-        title: "Top-up Successful",
-        description: `₹${amount} has been added to your virtual card`,
-      });
+        if (transactionError) throw transactionError;
+
+        setVirtualCard({ ...virtualCard, balance: newBalance });
+        loadTransactions();
+        
+        toast({
+          title: "Top-up Successful",
+          description: `₹${amount} has been added to your virtual card. New balance: ₹${(newBalance / 100).toFixed(2)}`,
+        });
+      } else if (mockCard) {
+        // For mock cards, simulate the top-up
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        MOCK_VIRTUAL_CARDS[cardNumberToTopUp].balance += amount * 100;
+        
+        toast({
+          title: "Top-up Successful",
+          description: `₹${amount} has been added to card ${cardNumberToTopUp}. New balance: ₹${(MOCK_VIRTUAL_CARDS[cardNumberToTopUp].balance / 100).toFixed(2)}`,
+        });
+      } else {
+        toast({
+          title: "Invalid Card Number",
+          description: "The card number you entered is not valid",
+          variant: "destructive",
+        });
+        setLoading(false);
+        return;
+      }
       
       setShowTopUp(false);
       setTopUpAmount("");
+      setTopUpCardNumber("");
     } catch (error) {
       console.error('Error during top-up:', error);
       toast({
@@ -258,6 +340,155 @@ const VirtualCard = () => {
           <ArrowLeft className="h-4 w-4 mr-2" />
           Back to Home
         </Button>
+
+        {/* Card Verification Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Search className="h-5 w-5" />
+              Verify Virtual Card
+            </CardTitle>
+            <CardDescription>
+              Enter a virtual card number to check if it's valid
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="verify-card">Card Number</Label>
+              <Input
+                id="verify-card"
+                placeholder="Enter virtual card number (e.g., VC12345678)"
+                value={verifyCardNumber}
+                onChange={(e) => {
+                  setVerifyCardNumber(e.target.value.toUpperCase());
+                  setVerificationResult(null);
+                }}
+              />
+              <p className="text-xs text-muted-foreground">
+                Try: VC12345678, VC87654321, or VC11223344
+              </p>
+            </div>
+            <Button 
+              onClick={handleVerifyCard} 
+              disabled={loading || !verifyCardNumber.trim()}
+              className="w-full"
+            >
+              {loading ? "Verifying..." : "Verify Card"}
+            </Button>
+            
+            {/* Verification Result */}
+            {verificationResult && (
+              <div className={`p-4 rounded-lg ${verificationResult.valid ? 'bg-green-50 dark:bg-green-950 border border-green-200 dark:border-green-800' : 'bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800'}`}>
+                <div className="flex items-center gap-2">
+                  {verificationResult.valid ? (
+                    <>
+                      <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
+                      <span className="font-medium text-green-700 dark:text-green-400">Card Verified – Active</span>
+                    </>
+                  ) : (
+                    <>
+                      <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                      <span className="font-medium text-red-700 dark:text-red-400">Invalid Card Number</span>
+                    </>
+                  )}
+                </div>
+                {verificationResult.valid && verificationResult.data && (
+                  <div className="mt-3 text-sm space-y-1">
+                    <p><span className="text-muted-foreground">Card Number:</span> {verificationResult.data.cardNumber}</p>
+                    <p><span className="text-muted-foreground">Holder Name:</span> {verificationResult.data.holderName}</p>
+                    <p><span className="text-muted-foreground">Balance:</span> ₹{(verificationResult.data.balance / 100).toFixed(2)}</p>
+                    <p><span className="text-muted-foreground">Status:</span> <Badge variant="secondary" className="bg-green-500 text-white">{verificationResult.data.status.toUpperCase()}</Badge></p>
+                  </div>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Top-Up Any Card Section */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Plus className="h-5 w-5" />
+              Top-Up Virtual Card
+            </CardTitle>
+            <CardDescription>
+              Add money to any virtual card using UPI
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!showTopUp ? (
+              <Button 
+                onClick={() => setShowTopUp(true)} 
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Top-Up Now
+              </Button>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="topup-card">Virtual Card Number</Label>
+                  <Input
+                    id="topup-card"
+                    placeholder="Enter virtual card number"
+                    value={topUpCardNumber}
+                    onChange={(e) => setTopUpCardNumber(e.target.value.toUpperCase())}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Valid cards: VC12345678, VC87654321, VC11223344 {virtualCard ? `or ${virtualCard.card_number}` : ''}
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <Label>Select Amount</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    {[100, 200, 500, 1000, 2000].map((amount) => (
+                      <Button
+                        key={amount}
+                        variant={topUpAmount === amount.toString() ? "default" : "outline"}
+                        onClick={() => setTopUpAmount(amount.toString())}
+                        size="sm"
+                      >
+                        ₹{amount}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="custom-topup-amount">Custom Amount</Label>
+                  <Input
+                    id="custom-topup-amount"
+                    type="number"
+                    placeholder="Enter amount (₹10 - ₹5000)"
+                    value={topUpAmount}
+                    onChange={(e) => setTopUpAmount(e.target.value)}
+                    min="10"
+                    max="5000"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <Button 
+                    onClick={handleTopUp} 
+                    disabled={loading || !topUpCardNumber.trim()} 
+                    className="flex-1"
+                  >
+                    {loading ? "Processing..." : `Pay ₹${topUpAmount || 0} via UPI`}
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setShowTopUp(false);
+                      setTopUpAmount("");
+                      setTopUpCardNumber("");
+                    }}
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </>
+            )}
+          </CardContent>
+        </Card>
 
         {/* Create Virtual Card */}
         {!virtualCard && !showCreateCard && (
@@ -338,7 +569,7 @@ const VirtualCard = () => {
               </CardHeader>
               <CardContent className="space-y-6">
                 {/* Card Visual */}
-                <div className="bg-gradient-to-r from-primary to-primary-foreground p-6 rounded-lg text-white relative">
+                <div className="bg-gradient-to-r from-primary to-primary/80 p-6 rounded-lg text-primary-foreground relative">
                   <div className="flex justify-between items-start mb-4">
                     <div>
                       <p className="text-sm opacity-80">Metro Virtual Card</p>
@@ -375,9 +606,15 @@ const VirtualCard = () => {
 
                 {/* Action Buttons */}
                 <div className="flex gap-2">
-                  <Button onClick={() => setShowTopUp(true)} className="flex-1">
+                  <Button 
+                    onClick={() => {
+                      setTopUpCardNumber(virtualCard.card_number);
+                      setShowTopUp(true);
+                    }} 
+                    className="flex-1"
+                  >
                     <Plus className="h-4 w-4 mr-2" />
-                    Top-up
+                    Top-up My Card
                   </Button>
                   <Button variant="outline" className="flex-1">
                     <QrCode className="h-4 w-4 mr-2" />
@@ -386,53 +623,6 @@ const VirtualCard = () => {
                 </div>
               </CardContent>
             </Card>
-
-            {/* Top-up Section */}
-            {showTopUp && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Top-up Your E-Card</CardTitle>
-                  <CardDescription>Add money to your virtual metro card using UPI</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label>Select Amount</Label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[100, 200, 500, 1000, 2000].map((amount) => (
-                        <Button
-                          key={amount}
-                          variant={topUpAmount === amount.toString() ? "default" : "outline"}
-                          onClick={() => setTopUpAmount(amount.toString())}
-                          size="sm"
-                        >
-                          ₹{amount}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="custom-amount">Custom Amount</Label>
-                    <Input
-                      id="custom-amount"
-                      type="number"
-                      placeholder="Enter amount (₹10 - ₹5000)"
-                      value={topUpAmount}
-                      onChange={(e) => setTopUpAmount(e.target.value)}
-                      min="10"
-                      max="5000"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button onClick={handleTopUp} disabled={loading} className="flex-1">
-                      {loading ? "Processing..." : `Pay ₹${topUpAmount || 0} via UPI`}
-                    </Button>
-                    <Button variant="outline" onClick={() => setShowTopUp(false)}>
-                      Cancel
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
 
             {/* Transaction History */}
             <Card>
