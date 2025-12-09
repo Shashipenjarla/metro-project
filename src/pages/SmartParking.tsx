@@ -83,11 +83,37 @@ const STATION_DISTANCES: Record<string, Record<string, number>> = {
   },
 };
 
+// Mock metro arrival data by station
+const METRO_ARRIVALS: Record<string, { trainId: string; destination: string; arrivalTime: string; line: string }[]> = {
+  "Dilsukhnagar": [
+    { trainId: "R-101", destination: "LB Nagar", arrivalTime: "2 min", line: "Red" },
+    { trainId: "R-102", destination: "Miyapur", arrivalTime: "5 min", line: "Red" },
+    { trainId: "R-103", destination: "LB Nagar", arrivalTime: "8 min", line: "Red" },
+  ],
+  "Victoria Memorial": [
+    { trainId: "R-104", destination: "Miyapur", arrivalTime: "3 min", line: "Red" },
+    { trainId: "R-105", destination: "LB Nagar", arrivalTime: "6 min", line: "Red" },
+  ],
+  "LB Nagar": [
+    { trainId: "R-106", destination: "Miyapur", arrivalTime: "4 min", line: "Red" },
+    { trainId: "R-107", destination: "Miyapur", arrivalTime: "9 min", line: "Red" },
+  ],
+  "Nagole": [
+    { trainId: "B-201", destination: "Raidurg", arrivalTime: "2 min", line: "Blue" },
+    { trainId: "B-202", destination: "Raidurg", arrivalTime: "7 min", line: "Blue" },
+  ],
+  "Chaitanyapuri": [
+    { trainId: "R-108", destination: "LB Nagar", arrivalTime: "3 min", line: "Red" },
+    { trainId: "R-109", destination: "Miyapur", arrivalTime: "6 min", line: "Red" },
+  ],
+};
+
 const SmartParking = () => {
   const navigate = useNavigate();
   const { setParkingStation } = useJourneyState();
   const [parkingData, setParkingData] = useState<ParkingAvailability[]>([]);
   const [userBookings, setUserBookings] = useState<ParkingBooking[]>([]);
+  const [expandedArrivals, setExpandedArrivals] = useState<string | null>(null);
   const [selectedStation, setSelectedStation] = useState("");
   const [vehicleType, setVehicleType] = useState<'two_wheeler' | 'four_wheeler'>('two_wheeler');
   const [bookingDate, setBookingDate] = useState("");
@@ -620,7 +646,14 @@ const SmartParking = () => {
                                 📍 Distance: <strong>{station.distance} km</strong> from {selectedStationInfo?.station_name}
                               </p>
                             </div>
-                            <div className="text-right">
+                            <div className="text-right flex flex-col items-end gap-1">
+                              {/* Red link for next arrival metros */}
+                              <button
+                                onClick={() => setExpandedArrivals(expandedArrivals === station.station_name ? null : station.station_name)}
+                                className="text-metro-red hover:underline text-sm font-medium cursor-pointer"
+                              >
+                                {expandedArrivals === station.station_name ? 'hide arrivals' : 'show next arrival metros from this station'}
+                              </button>
                               <div className="flex items-center gap-4 text-sm">
                                 <span className="flex items-center gap-1">
                                   <Bike className="h-4 w-4" />
@@ -633,6 +666,24 @@ const SmartParking = () => {
                               </div>
                             </div>
                           </div>
+                          
+                          {/* Metro Arrivals Display */}
+                          {expandedArrivals === station.station_name && METRO_ARRIVALS[station.station_name] && (
+                            <div className="mt-3 p-3 bg-white/80 rounded-lg border border-metro-red/20">
+                              <p className="text-sm font-semibold text-metro-red mb-2 flex items-center gap-1">
+                                🚇 Next Metro Arrivals at {station.station_name}
+                              </p>
+                              <div className="space-y-2">
+                                {METRO_ARRIVALS[station.station_name].map((arrival, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-sm bg-gray-50 p-2 rounded">
+                                    <span className="font-medium">{arrival.trainId} → {arrival.destination}</span>
+                                    <span className="text-metro-red font-bold">{arrival.arrivalTime}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          
                           <div className="mt-2 pt-2 border-t border-green-200">
                             <p className="text-sm">
                               💡 {vehicleType === 'two_wheeler' 
