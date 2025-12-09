@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Train, User, LogOut, Menu, X } from "lucide-react";
+import { Train, User, LogOut, Menu, X, Wallet } from "lucide-react";
 
 interface HeaderProps {
   user?: any;
@@ -61,6 +61,16 @@ const Header = ({ user }: HeaderProps) => {
             >
               Map
             </Button>
+            {user && (
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate("/wallet")}
+                className="focus-ring text-orange-500 hover:text-orange-600 hover:bg-orange-50 dark:hover:bg-orange-900/20"
+              >
+                <Wallet className="h-4 w-4 mr-2" />
+                Wallet
+              </Button>
+            )}
           </nav>
 
           {/* User Actions */}
@@ -151,6 +161,19 @@ const Header = ({ user }: HeaderProps) => {
               >
                 Map
               </Button>
+              {user && (
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    navigate("/wallet");
+                    setMobileMenuOpen(false);
+                  }}
+                  className="justify-start focus-ring text-orange-500"
+                >
+                  <Wallet className="h-4 w-4 mr-2" />
+                  Wallet
+                </Button>
+              )}
             </nav>
           </div>
         )}
