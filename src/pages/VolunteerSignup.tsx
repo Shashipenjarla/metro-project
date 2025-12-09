@@ -75,15 +75,8 @@ const VolunteerSignup = () => {
           availability_status: profileData.availability_status
         });
 
-        // If already a volunteer, redirect to requests page
-        if (profileData.role === 'volunteer' || profileData.role === 'admin') {
-          toast({
-            title: "Already a Volunteer",
-            description: "You are already registered as a volunteer",
-          });
-          navigate('/accessibility-requests');
-          return;
-        }
+        // If already a volunteer, just show the form with pre-filled data
+        // User can still view and update their volunteer profile
       } else {
         // Create profile if it doesn't exist
         const { data: newProfile, error: createError } = await supabase
@@ -159,23 +152,27 @@ const VolunteerSignup = () => {
     setSubmitting(true);
 
     try {
+      const isAlreadyVolunteer = profile.role === 'volunteer' || profile.role === 'admin';
+      
       const { error } = await supabase
         .from('profiles')
         .update({
           full_name: formData.full_name,
           phone_number: formData.phone_number,
-          role: 'volunteer',
+          role: isAlreadyVolunteer ? profile.role : 'volunteer',
           specializations: formData.selectedSpecializations,
           availability_status: formData.availability_status,
-          is_verified_volunteer: false // Will be verified by admin later
+          is_verified_volunteer: isAlreadyVolunteer ? profile.is_verified_volunteer : false
         })
         .eq('user_id', profile.user_id);
 
       if (error) throw error;
 
       toast({
-        title: "Application Submitted",
-        description: "Your volunteer application has been submitted. You'll be notified once it's approved.",
+        title: isAlreadyVolunteer ? "Profile Updated" : "Application Submitted",
+        description: isAlreadyVolunteer 
+          ? "Your volunteer profile has been updated successfully."
+          : "Your volunteer application has been submitted. You'll be notified once it's approved.",
       });
 
       navigate('/accessibility-requests');
@@ -255,9 +252,15 @@ const VolunteerSignup = () => {
         {/* Application Form */}
         <Card>
           <CardHeader>
-            <CardTitle>Volunteer Application</CardTitle>
+            <CardTitle>
+              {profile?.role === 'volunteer' || profile?.role === 'admin' 
+                ? "Update Volunteer Profile" 
+                : "Volunteer Application"}
+            </CardTitle>
             <CardDescription>
-              Fill out this form to register as a volunteer. We'll review your application and get back to you.
+              {profile?.role === 'volunteer' || profile?.role === 'admin'
+                ? "Update your volunteer information and preferences."
+                : "Fill out this form to register as a volunteer. We'll review your application and get back to you."}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -352,7 +355,9 @@ const VolunteerSignup = () => {
                 disabled={submitting}
                 className="w-full"
               >
-                {submitting ? "Submitting Application..." : "Submit Volunteer Application"}
+                {submitting 
+                  ? (profile?.role === 'volunteer' || profile?.role === 'admin' ? "Updating Profile..." : "Submitting Application...") 
+                  : (profile?.role === 'volunteer' || profile?.role === 'admin' ? "Update Volunteer Profile" : "Submit Volunteer Application")}
               </Button>
             </form>
           </CardContent>
