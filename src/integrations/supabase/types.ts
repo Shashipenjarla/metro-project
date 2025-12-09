@@ -633,6 +633,7 @@ export type Database = {
           created_at: string
           holder_name: string
           id: string
+          linked_smart_card: string | null
           profile_image_url: string | null
           status: string
           updated_at: string
@@ -644,6 +645,7 @@ export type Database = {
           created_at?: string
           holder_name: string
           id?: string
+          linked_smart_card?: string | null
           profile_image_url?: string | null
           status?: string
           updated_at?: string
@@ -655,6 +657,7 @@ export type Database = {
           created_at?: string
           holder_name?: string
           id?: string
+          linked_smart_card?: string | null
           profile_image_url?: string | null
           status?: string
           updated_at?: string

@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { toast } from "@/hooks/use-toast";
-import { CreditCard, Plus, ArrowLeft, QrCode, Wallet, History, User, CheckCircle, Search, XCircle } from "lucide-react";
+import { CreditCard, Plus, ArrowLeft, QrCode, Wallet, History, User, CheckCircle, Search, XCircle, Link, Unlink, RefreshCw } from "lucide-react";
 import QRCode from "qrcode";
 
 // Mock virtual cards for verification testing
@@ -16,6 +16,13 @@ const MOCK_VIRTUAL_CARDS: Record<string, { holderName: string; balance: number; 
   "VC12345678": { holderName: "Demo User 1", balance: 50000, status: "active" },
   "VC87654321": { holderName: "Demo User 2", balance: 25000, status: "active" },
   "VC11223344": { holderName: "Demo User 3", balance: 100000, status: "active" },
+};
+
+// Mock Smart Card data (same as SmartCard.tsx for syncing)
+const SMART_CARDS: Record<string, { balance: number; lastUsed: string; status: string; holderName?: string }> = {
+  "1234567890": { balance: 245, lastUsed: "2024-01-20", status: "active", holderName: "Test User 1" },
+  "0987654321": { balance: 89, lastUsed: "2024-01-19", status: "active", holderName: "Test User 2" },
+  "1122334455": { balance: 500, lastUsed: "2024-01-21", status: "active", holderName: "Test User 3" },
 };
 
 interface VirtualCardData {
@@ -26,6 +33,7 @@ interface VirtualCardData {
   status: string;
   profile_image_url?: string;
   created_at: string;
+  linked_smart_card?: string | null;
 }
 
 interface Transaction {
@@ -52,6 +60,9 @@ const VirtualCard = () => {
   const [holderName, setHolderName] = useState("");
   const [qrCodeUrl, setQrCodeUrl] = useState("");
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [showLinkCard, setShowLinkCard] = useState(false);
+  const [smartCardNumber, setSmartCardNumber] = useState("");
+  const [syncLoading, setSyncLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -329,6 +340,147 @@ const VirtualCard = () => {
     }
   };
 
+  const handleLinkSmartCard = async () => {
+    if (!smartCardNumber || smartCardNumber.length !== 10) {
+      toast({
+        title: "Invalid Card Number",
+        description: "Please enter a valid 10-digit Smart Card number",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if Smart Card exists
+    const smartCard = SMART_CARDS[smartCardNumber];
+    if (!smartCard) {
+      toast({
+        title: "Smart Card Not Found",
+        description: "The Smart Card number you entered is not registered. Try: 1234567890, 0987654321, or 1122334455",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setLoading(true);
+
+    try {
+      // Update virtual card with linked smart card
+      const { error } = await supabase
+        .from('virtual_cards')
+        .update({ 
+          linked_smart_card: smartCardNumber,
+          balance: smartCard.balance * 100 // Convert rupees to paise
+        })
+        .eq('id', virtualCard!.id);
+
+      if (error) throw error;
+
+      // Update local state
+      setVirtualCard({
+        ...virtualCard!,
+        linked_smart_card: smartCardNumber,
+        balance: smartCard.balance * 100
+      });
+
+      setShowLinkCard(false);
+      setSmartCardNumber("");
+
+      toast({
+        title: "Smart Card Linked Successfully!",
+        description: `Balance synced: ₹${smartCard.balance.toFixed(2)}`,
+      });
+    } catch (error) {
+      console.error('Error linking Smart Card:', error);
+      toast({
+        title: "Linking Failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUnlinkSmartCard = async () => {
+    if (!virtualCard?.linked_smart_card) return;
+
+    setLoading(true);
+
+    try {
+      const { error } = await supabase
+        .from('virtual_cards')
+        .update({ linked_smart_card: null })
+        .eq('id', virtualCard.id);
+
+      if (error) throw error;
+
+      setVirtualCard({
+        ...virtualCard,
+        linked_smart_card: null
+      });
+
+      toast({
+        title: "Smart Card Unlinked",
+        description: "Your Smart Card has been unlinked from this Virtual Card",
+      });
+    } catch (error) {
+      console.error('Error unlinking Smart Card:', error);
+      toast({
+        title: "Error",
+        description: "Failed to unlink Smart Card",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSyncBalance = async () => {
+    if (!virtualCard?.linked_smart_card) return;
+
+    const smartCard = SMART_CARDS[virtualCard.linked_smart_card];
+    if (!smartCard) {
+      toast({
+        title: "Sync Failed",
+        description: "Linked Smart Card not found",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSyncLoading(true);
+
+    try {
+      const newBalance = smartCard.balance * 100;
+
+      const { error } = await supabase
+        .from('virtual_cards')
+        .update({ balance: newBalance })
+        .eq('id', virtualCard.id);
+
+      if (error) throw error;
+
+      setVirtualCard({
+        ...virtualCard,
+        balance: newBalance
+      });
+
+      toast({
+        title: "Balance Synced!",
+        description: `Current balance: ₹${smartCard.balance.toFixed(2)}`,
+      });
+    } catch (error) {
+      console.error('Error syncing balance:', error);
+      toast({
+        title: "Sync Failed",
+        description: "Please try again",
+        variant: "destructive",
+      });
+    } finally {
+      setSyncLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-4">
       <div className="max-w-2xl mx-auto space-y-6">
@@ -603,6 +755,92 @@ const VirtualCard = () => {
                     </div>
                   </div>
                 )}
+
+                {/* Linked Smart Card Section */}
+                <div className="border-t pt-4">
+                  {virtualCard.linked_smart_card ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Link className="h-4 w-4 text-green-600" />
+                          <span className="text-sm font-medium">Linked Smart Card</span>
+                        </div>
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">
+                          {virtualCard.linked_smart_card}
+                        </Badge>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleSyncBalance}
+                          disabled={syncLoading}
+                          className="flex-1"
+                        >
+                          <RefreshCw className={`h-4 w-4 mr-2 ${syncLoading ? 'animate-spin' : ''}`} />
+                          Sync Balance
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={handleUnlinkSmartCard}
+                          disabled={loading}
+                          className="text-destructive hover:text-destructive"
+                        >
+                          <Unlink className="h-4 w-4 mr-2" />
+                          Unlink
+                        </Button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      {!showLinkCard ? (
+                        <Button 
+                          variant="outline" 
+                          onClick={() => setShowLinkCard(true)}
+                          className="w-full"
+                        >
+                          <Link className="h-4 w-4 mr-2" />
+                          Link Smart Card for Balance Sync
+                        </Button>
+                      ) : (
+                        <div className="space-y-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="smart-card-number">Smart Card Number</Label>
+                            <Input
+                              id="smart-card-number"
+                              placeholder="Enter 10-digit Smart Card number"
+                              value={smartCardNumber}
+                              onChange={(e) => setSmartCardNumber(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                              maxLength={10}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Try: 1234567890, 0987654321, or 1122334455
+                            </p>
+                          </div>
+                          <div className="flex gap-2">
+                            <Button 
+                              onClick={handleLinkSmartCard}
+                              disabled={loading || smartCardNumber.length !== 10}
+                              className="flex-1"
+                            >
+                              {loading ? "Linking..." : "Link Card"}
+                            </Button>
+                            <Button 
+                              variant="outline" 
+                              onClick={() => {
+                                setShowLinkCard(false);
+                                setSmartCardNumber("");
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
 
               </CardContent>
             </Card>
