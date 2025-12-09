@@ -124,16 +124,37 @@ const Booking = () => {
   const [prefillSource, setPrefillSource] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  // Helper function to resolve station value to ID
+  const resolveStationToId = (stationValue: string): string => {
+    // If it's already an ID, return it
+    const byId = METRO_STATIONS.find(s => s.id === stationValue);
+    if (byId) return stationValue;
+    
+    // If it's a name, find the matching station and return its ID
+    const byName = METRO_STATIONS.find(s => s.name === stationValue);
+    if (byName) return byName.id;
+    
+    // Also check SELECTOR_STATIONS
+    const selectorById = SELECTOR_STATIONS.find(s => s.id === stationValue);
+    if (selectorById) return stationValue;
+    
+    const selectorByName = SELECTOR_STATIONS.find(s => s.name === stationValue);
+    if (selectorByName) return selectorByName.id;
+    
+    // Fallback to original value
+    return stationValue;
+  };
+
   // Check for prefilled stations from Route Optimizer or Smart Parking
   useEffect(() => {
     // Priority 1: Check navigation state (from Route Optimizer "Book This Journey" button)
     const navState = location.state as { source?: string; destination?: string } | null;
     if (navState?.source) {
-      setSourceStation(navState.source);
+      setSourceStation(resolveStationToId(navState.source));
       setPrefillSource('Route Optimizer');
     }
     if (navState?.destination) {
-      setDestinationStation(navState.destination);
+      setDestinationStation(resolveStationToId(navState.destination));
     }
 
     // Priority 2: Check journey state (from localStorage)
@@ -142,11 +163,11 @@ const Booking = () => {
       const storedDest = getBookingDestination();
       
       if (storedSource) {
-        setSourceStation(storedSource);
+        setSourceStation(resolveStationToId(storedSource));
         setPrefillSource(storedDest ? 'Route Optimizer' : 'Smart Parking');
       }
       if (storedDest) {
-        setDestinationStation(storedDest);
+        setDestinationStation(resolveStationToId(storedDest));
       }
     }
   }, [location.state]);
