@@ -159,7 +159,7 @@ const VirtualCard = () => {
             user_id: user.id,
             card_number: cardNumber,
             holder_name: holderName.trim(),
-            balance: 0,
+            balance: 24500, // Default balance of ₹245 (stored in paise) - synced with Smart Card
             status: 'active'
           }
         ])
@@ -604,23 +604,6 @@ const VirtualCard = () => {
                   </div>
                 )}
 
-                {/* Action Buttons */}
-                <div className="flex gap-2">
-                  <Button 
-                    onClick={() => {
-                      setTopUpCardNumber(virtualCard.card_number);
-                      setShowTopUp(true);
-                    }} 
-                    className="flex-1"
-                  >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Top-up My Card
-                  </Button>
-                  <Button variant="outline" className="flex-1">
-                    <QrCode className="h-4 w-4 mr-2" />
-                    Show QR
-                  </Button>
-                </div>
               </CardContent>
             </Card>
 
