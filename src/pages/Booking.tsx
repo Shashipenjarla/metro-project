@@ -336,21 +336,55 @@ const Booking = () => {
       const fare = calculateFare();
       const totalAmount = fare * passengerCount;
 
-      // Create mock booking data (will be replaced with real database calls later)
+      // Generate ticket data
       const ticketId = `TKT-${Date.now()}`;
+      const sourceName = stations.find(s => s.id === sourceStation)?.name || sourceStation;
+      const destName = stations.find(s => s.id === destinationStation)?.name || destinationStation;
+      
       const qrData = {
         ticketId,
-        source: stations.find(s => s.id === sourceStation)?.name || sourceStation,
-        destination: stations.find(s => s.id === destinationStation)?.name || destinationStation,
+        source: sourceName,
+        destination: destName,
         date: travelDate,
         time: travelTime,
         passengers: passengerCount,
         amount: totalAmount
       };
 
+      // Get current user
+      const { data: { session } } = await supabase.auth.getSession();
+      const currentUserId = session?.user?.id || null;
+
+      // Set expiry to end of travel date
+      const expiresAt = new Date(`${travelDate}T23:59:59`);
+
+      // Save ticket to database
+      const { data: savedTicket, error: ticketError } = await supabase
+        .from('offline_tickets')
+        .insert({
+          ticket_id: ticketId,
+          user_id: currentUserId,
+          source_station: sourceName,
+          destination_station: destName,
+          travel_date: travelDate,
+          travel_time: travelTime,
+          passenger_count: passengerCount,
+          fare_amount: totalAmount,
+          qr_data: JSON.stringify(qrData),
+          expires_at: expiresAt.toISOString(),
+          is_validated: false
+        })
+        .select()
+        .single();
+
+      if (ticketError) {
+        console.error('Error saving ticket:', ticketError);
+        // Continue with navigation even if save fails (offline capability)
+      }
+
       const ticketBooking = {
         id: ticketId,
-        user_id: user?.id || null,
+        user_id: currentUserId,
         source_station_id: sourceStation,
         destination_station_id: destinationStation,
         travel_date: travelDate,
@@ -365,7 +399,7 @@ const Booking = () => {
       if (needsParking && parkingStation) {
         parkingBooking = {
           id: `parking_${Date.now()}`,
-          user_id: user?.id || null,
+          user_id: currentUserId,
           station_id: parkingStation,
           vehicle_type: parkingType,
           booking_date: travelDate,
@@ -378,7 +412,7 @@ const Booking = () => {
       if (needsTransport) {
         transportBooking = {
           id: `transport_${Date.now()}`,
-          user_id: user?.id || null,
+          user_id: currentUserId,
           transport_type: transportType,
           location: transportLocation,
           source_station: transportLocation === "source" || transportLocation === "both" ? sourceStation : null,
