@@ -398,11 +398,16 @@ const AccessibilityRequests = () => {
         <div className="flex gap-4 mb-6">
           <Button onClick={() => navigate('/accessibility-assistance')}>
             <Heart className="h-4 w-4 mr-2" />
-            New Request
+            Request Assistance
           </Button>
           {profile?.role === 'passenger' && (
             <Button variant="outline" onClick={() => navigate('/volunteer-signup')}>
               Become a Volunteer
+            </Button>
+          )}
+          {(profile?.role === 'volunteer' || profile?.role === 'admin') && (
+            <Button variant="outline" onClick={() => navigate('/volunteer-signup')}>
+              Edit Volunteer Profile
             </Button>
           )}
         </div>
