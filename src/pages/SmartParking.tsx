@@ -673,13 +673,20 @@ const SmartParking = () => {
               <div className="text-center mt-3">
                 <button
                   onClick={() => {
-                    // Save the selected station NAME to journey state (not ID)
-                    // This ensures compatibility with Booking.tsx which uses different IDs
+                    // Get the station name for the selected station
                     const stationData = parkingData.find(p => p.station_id === selectedStation);
                     if (stationData) {
+                      // Save to journey state (for persistence)
                       setParkingStation(stationData.station_name);
+                      // Navigate with state (like Route Optimizer does) for immediate reflection
+                      navigate('/booking', { 
+                        state: { 
+                          source: stationData.station_name 
+                        } 
+                      });
+                    } else {
+                      navigate('/booking');
                     }
-                    navigate('/booking');
                   }}
                   className="text-metro-green hover:text-metro-green/80 hover:underline text-sm font-medium cursor-pointer transition-colors"
                 >
