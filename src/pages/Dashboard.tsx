@@ -20,9 +20,12 @@ import {
   LogOut,
   TrendingUp,
   Ticket,
-  DollarSign
+  DollarSign,
+  QrCode,
+  ArrowRight
 } from 'lucide-react';
 import { useToast } from '@/components/ui/use-toast';
+import QRCode from 'qrcode';
 
 interface UserProfile {
   id: string;
@@ -32,10 +35,27 @@ interface UserProfile {
   updated_at: string;
 }
 
+interface OfflineTicket {
+  id: string;
+  ticket_id: string;
+  source_station: string;
+  destination_station: string;
+  travel_date: string;
+  travel_time: string;
+  passenger_count: number;
+  fare_amount: number;
+  qr_data: string;
+  is_validated: boolean;
+  expires_at: string;
+  created_at: string;
+}
+
 const Dashboard: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [tickets, setTickets] = useState<OfflineTicket[]>([]);
+  const [ticketQRCodes, setTicketQRCodes] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -62,11 +82,56 @@ const Dashboard: React.FC = () => {
         setProfile(profileData);
       }
 
+      // Fetch user's tickets
+      const { data: ticketData, error: ticketError } = await supabase
+        .from('offline_tickets')
+        .select('*')
+        .eq('user_id', session.user.id)
+        .order('created_at', { ascending: false });
+
+      if (ticketError) {
+        console.error('Error fetching tickets:', ticketError);
+      } else if (ticketData) {
+        setTickets(ticketData);
+        // Generate QR codes for each ticket
+        generateQRCodes(ticketData);
+      }
+
       setLoading(false);
     };
 
     getUser();
   }, [navigate]);
+
+  const generateQRCodes = async (ticketList: OfflineTicket[]) => {
+    const qrCodes: Record<string, string> = {};
+    for (const ticket of ticketList) {
+      try {
+        const qrDataUrl = await QRCode.toDataURL(ticket.qr_data, {
+          width: 150,
+          margin: 2,
+          color: {
+            dark: '#000000',
+            light: '#ffffff'
+          }
+        });
+        qrCodes[ticket.id] = qrDataUrl;
+      } catch (err) {
+        console.error('Error generating QR code:', err);
+      }
+    }
+    setTicketQRCodes(qrCodes);
+  };
+
+  const isTicketExpired = (expiresAt: string) => {
+    return new Date(expiresAt) < new Date();
+  };
+
+  const getTicketStatus = (ticket: OfflineTicket) => {
+    if (ticket.is_validated) return { label: 'Used', variant: 'secondary' as const };
+    if (isTicketExpired(ticket.expires_at)) return { label: 'Expired', variant: 'destructive' as const };
+    return { label: 'Active', variant: 'default' as const };
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -343,17 +408,89 @@ const Dashboard: React.FC = () => {
           <TabsContent value="bookings" className="space-y-6">
             <Card className="shadow-soft">
               <CardHeader>
-                <CardTitle>Active Bookings</CardTitle>
-                <CardDescription>Manage your current reservations</CardDescription>
+                <CardTitle className="flex items-center gap-2">
+                  <QrCode className="h-5 w-5" />
+                  My Tickets
+                </CardTitle>
+                <CardDescription>Your booked metro tickets with QR codes</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-center py-8">
-                  <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <p className="text-muted-foreground">No active bookings at the moment</p>
-                  <Button className="mt-4 bg-gradient-primary" onClick={() => navigate('/booking')}>
-                    Make a Booking
-                  </Button>
-                </div>
+                {tickets.length === 0 ? (
+                  <div className="text-center py-8">
+                    <Calendar className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">No tickets booked yet</p>
+                    <Button className="mt-4 bg-gradient-primary" onClick={() => navigate('/booking')}>
+                      Book a Ticket
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {tickets.map((ticket) => {
+                      const status = getTicketStatus(ticket);
+                      return (
+                        <Card key={ticket.id} className="overflow-hidden border-2 hover:shadow-lg transition-shadow">
+                          <div className="bg-gradient-primary p-3 text-primary-foreground">
+                            <div className="flex items-center justify-between">
+                              <span className="font-mono text-sm">{ticket.ticket_id}</span>
+                              <Badge variant={status.variant} className="text-xs">
+                                {status.label}
+                              </Badge>
+                            </div>
+                          </div>
+                          <CardContent className="p-4">
+                            {/* Route Info */}
+                            <div className="flex items-center gap-2 mb-4">
+                              <div className="flex-1 text-center">
+                                <p className="text-xs text-muted-foreground">From</p>
+                                <p className="font-semibold text-sm truncate">{ticket.source_station}</p>
+                              </div>
+                              <ArrowRight className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                              <div className="flex-1 text-center">
+                                <p className="text-xs text-muted-foreground">To</p>
+                                <p className="font-semibold text-sm truncate">{ticket.destination_station}</p>
+                              </div>
+                            </div>
+
+                            {/* QR Code */}
+                            <div className="flex justify-center mb-4">
+                              {ticketQRCodes[ticket.id] ? (
+                                <img 
+                                  src={ticketQRCodes[ticket.id]} 
+                                  alt="Ticket QR Code" 
+                                  className="rounded-lg border p-1"
+                                />
+                              ) : (
+                                <div className="w-[150px] h-[150px] bg-muted rounded-lg flex items-center justify-center">
+                                  <QrCode className="h-8 w-8 text-muted-foreground animate-pulse" />
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Ticket Details */}
+                            <div className="space-y-2 text-sm">
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Date</span>
+                                <span className="font-medium">{new Date(ticket.travel_date).toLocaleDateString()}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Time</span>
+                                <span className="font-medium">{ticket.travel_time}</span>
+                              </div>
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">Passengers</span>
+                                <span className="font-medium">{ticket.passenger_count}</span>
+                              </div>
+                              <div className="flex justify-between border-t pt-2">
+                                <span className="text-muted-foreground">Fare</span>
+                                <span className="font-bold text-primary">₹{ticket.fare_amount}</span>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
