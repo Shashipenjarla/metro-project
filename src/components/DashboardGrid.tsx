@@ -1,4 +1,5 @@
 import FeatureCard from "./FeatureCard";
+import { featureFlags } from "@/config/featureFlags";
 import { 
   Train, 
   Car, 
@@ -21,7 +22,7 @@ interface DashboardGridProps {
   user?: any;
 }
 
-const features = [
+const allFeatures = [
   {
     title: "Book Tickets",
     description: "Select stations, choose travel time, and book your metro tickets instantly with secure payments",
@@ -69,7 +70,8 @@ const features = [
     description: "Indoor GPS navigation to help you find platforms, exits, and facilities inside stations",
     icon: MapPin,
     path: "/indoor-navigation",
-    lineColor: "blue" as const
+    lineColor: "blue" as const,
+    featureFlag: "indoorNavigation" as const
   },
   {
     title: "Post-Station Transport",
@@ -83,7 +85,8 @@ const features = [
     description: "Generate QR code tickets that work without internet connection for seamless travel",
     icon: QrCode,
     path: "/offline-tickets",
-    lineColor: "red" as const
+    lineColor: "red" as const,
+    featureFlag: "offlineTickets" as const
   },
   {
     title: "Feedback & Support",
@@ -132,6 +135,14 @@ const features = [
     lineColor: "green" as const
   }
 ];
+
+// Filter features based on feature flags
+const features = allFeatures.filter((feature) => {
+  if ('featureFlag' in feature && feature.featureFlag) {
+    return featureFlags[feature.featureFlag];
+  }
+  return true;
+});
 
 const DashboardGrid = ({ user }: DashboardGridProps) => {
   return (

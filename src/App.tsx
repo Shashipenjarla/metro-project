@@ -2,7 +2,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { featureFlags } from "@/config/featureFlags";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
@@ -57,8 +58,14 @@ const App = () => (
           <Route path="/feedback-admin" element={<FeedbackAdmin />} />
           <Route path="/smart-parking" element={<SmartParking />} />
           <Route path="/metro-map" element={<MetroMap />} />
-          <Route path="/indoor-navigation" element={<IndoorNavigation />} />
-          <Route path="/offline-tickets" element={<OfflineTickets />} />
+          <Route 
+            path="/indoor-navigation" 
+            element={featureFlags.indoorNavigation ? <IndoorNavigation /> : <Navigate to="/" replace />} 
+          />
+          <Route 
+            path="/offline-tickets" 
+            element={featureFlags.offlineTickets ? <OfflineTickets /> : <Navigate to="/" replace />} 
+          />
           <Route path="/post-station-transport" element={<PostStationTransport />} />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="*" element={<NotFound />} />
