@@ -13,7 +13,7 @@ export const featureFlags = {
    * Generates QR code tickets that work without internet connection
    * Backend: Fully implemented and ready
    */
-  offlineTickets: false,
+  offlineTickets: true,
 
   /**
    * Indoor Station Navigation
