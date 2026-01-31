@@ -20,7 +20,7 @@ export const featureFlags = {
    * Indoor GPS navigation for platforms, exits, and facilities
    * Backend: Fully implemented and ready
    */
-  indoorNavigation: false,
+  indoorNavigation: true,
 } as const;
 
 export type FeatureFlag = keyof typeof featureFlags;
