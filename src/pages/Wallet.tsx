@@ -1,14 +1,19 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Wallet, Clock } from "lucide-react";
 import PageLayout from "@/components/PageLayout";
 import WalletCard from "@/components/wallet/WalletCard";
 import AddMoney from "@/components/wallet/AddMoney";
 import WalletTransactionList from "@/components/wallet/WalletTransactionList";
+import { TimeWalletCard } from "@/components/wallet/TimeWalletCard";
 import { useWallet } from "@/hooks/useWallet";
 
-const Wallet = () => {
+const WalletPage = () => {
   const navigate = useNavigate();
   const { balance, transactions, loading, addMoney, isAuthenticated } = useWallet();
+  const [activeTab, setActiveTab] = useState("money");
 
   if (!isAuthenticated) {
     return (
@@ -27,21 +32,42 @@ const Wallet = () => {
   }
 
   return (
-    <PageLayout title="Metro Wallet" subtitle="Manage your wallet balance and transactions" showBackButton={true}>
-      <div className="grid gap-6 lg:grid-cols-2">
-        {/* Left Column */}
-        <div className="space-y-6">
-          <WalletCard balance={balance} loading={loading} />
-          <AddMoney onAddMoney={addMoney} loading={loading} />
-        </div>
+    <PageLayout title="Metro Wallet" subtitle="Manage your wallet balance and time credits" showBackButton={true}>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6 max-w-md mx-auto">
+          <TabsTrigger value="money" className="flex items-center gap-2">
+            <Wallet className="h-4 w-4" />
+            Money Wallet
+          </TabsTrigger>
+          <TabsTrigger value="time" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            Time Wallet
+          </TabsTrigger>
+        </TabsList>
 
-        {/* Right Column */}
-        <div>
-          <WalletTransactionList transactions={transactions} loading={loading} />
-        </div>
-      </div>
+        <TabsContent value="money">
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Left Column */}
+            <div className="space-y-6">
+              <WalletCard balance={balance} loading={loading} />
+              <AddMoney onAddMoney={addMoney} loading={loading} />
+            </div>
+
+            {/* Right Column */}
+            <div>
+              <WalletTransactionList transactions={transactions} loading={loading} />
+            </div>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="time">
+          <div className="max-w-2xl mx-auto">
+            <TimeWalletCard />
+          </div>
+        </TabsContent>
+      </Tabs>
     </PageLayout>
   );
 };
 
-export default Wallet;
+export default WalletPage;
