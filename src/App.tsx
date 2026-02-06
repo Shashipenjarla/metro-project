@@ -47,12 +47,21 @@ const App = () => (
           <Route path="/smart-card" element={<SmartCard />} />
           <Route path="/virtual-card" element={<VirtualCard />} />
           <Route path="/route-optimizer" element={<RouteOptimizer />} />
-          <Route path="/metro-arrivals" element={<MetroArrivals />} />
+          <Route 
+            path="/metro-arrivals" 
+            element={featureFlags.liveArrivals ? <MetroArrivals /> : <Navigate to="/" replace />} 
+          />
           <Route path="/accessibility-assistance" element={<AccessibilityAssistance />} />
           <Route path="/accessibility-requests" element={<AccessibilityRequests />} />
           <Route path="/volunteer-signup" element={<VolunteerSignup />} />
-          <Route path="/lost-and-found" element={<LostAndFound />} />
-          <Route path="/food-stalls" element={<FoodStalls />} />
+          <Route 
+            path="/lost-and-found" 
+            element={featureFlags.lostAndFound ? <LostAndFound /> : <Navigate to="/" replace />} 
+          />
+          <Route 
+            path="/food-stalls" 
+            element={featureFlags.foodStalls ? <FoodStalls /> : <Navigate to="/" replace />} 
+          />
           <Route path="/feedback" element={<Feedback />} />
           <Route path="/feedback-status" element={<FeedbackStatus />} />
           <Route path="/feedback-admin" element={<FeedbackAdmin />} />
@@ -66,7 +75,10 @@ const App = () => (
             path="/offline-tickets" 
             element={featureFlags.offlineTickets ? <OfflineTickets /> : <Navigate to="/" replace />} 
           />
-          <Route path="/post-station-transport" element={<PostStationTransport />} />
+          <Route 
+            path="/post-station-transport" 
+            element={featureFlags.postStationTransport ? <PostStationTransport /> : <Navigate to="/" replace />} 
+          />
           <Route path="/wallet" element={<Wallet />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -63,7 +63,8 @@ const allFeatures = [
     description: "Get real-time metro arrival notifications with accurate delay status and ETAs",
     icon: Clock,
     path: "/metro-arrivals",
-    lineColor: "red" as const
+    lineColor: "red" as const,
+    featureFlag: "liveArrivals" as const
   },
   {
     title: "Station Navigation",
@@ -78,7 +79,8 @@ const allFeatures = [
     description: "Find onward transport options from your destination station",
     icon: Bus,
     path: "/post-station-transport",
-    lineColor: "green" as const
+    lineColor: "green" as const,
+    featureFlag: "postStationTransport" as const
   },
   {
     title: "Offline Tickets",
@@ -100,7 +102,8 @@ const allFeatures = [
     description: "Report lost items or search for belongings with our smart matching system",
     icon: Search,
     path: "/lost-and-found",
-    lineColor: "blue" as const
+    lineColor: "blue" as const,
+    featureFlag: "lostAndFound" as const
   },
   {
     title: "Accessibility Assistance",
@@ -132,7 +135,8 @@ const allFeatures = [
     description: "Order delicious food from verified stalls at metro stations with UPI payments",
     icon: UtensilsCrossed,
     path: "/food-stalls",
-    lineColor: "green" as const
+    lineColor: "green" as const,
+    featureFlag: "foodStalls" as const
   }
 ];
 
