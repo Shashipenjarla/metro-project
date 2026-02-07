@@ -20,7 +20,7 @@ export const featureFlags = {
    * Indoor GPS navigation for platforms, exits, and facilities
    * Backend: Fully implemented and ready
    */
-  indoorNavigation: false,
+  indoorNavigation: true,
 
   /**
    * Post-Station Transport
@@ -34,14 +34,14 @@ export const featureFlags = {
    * Report and search for lost/found items
    * Backend: Fully implemented and ready
    */
-  lostAndFound: false,
+  lostAndFound: true,
 
   /**
    * Food Stalls
    * Order food from verified stalls at metro stations
    * Backend: Fully implemented and ready
    */
-  foodStalls: false,
+  foodStalls: true,
 
   /**
    * Live Arrivals
