@@ -13,7 +13,7 @@ export const featureFlags = {
    * Generates QR code tickets that work without internet connection
    * Backend: Fully implemented and ready
    */
-  offlineTickets: false,
+  offlineTickets: true,
 
   /**
    * Indoor Station Navigation
@@ -27,7 +27,7 @@ export const featureFlags = {
    * Find onward transport options from destination station
    * Backend: Fully implemented and ready
    */
-  postStationTransport: false,
+  postStationTransport: true,
 
   /**
    * Lost and Found
@@ -48,7 +48,7 @@ export const featureFlags = {
    * Real-time metro arrival notifications
    * Backend: Fully implemented and ready
    */
-  liveArrivals: false,
+  liveArrivals: true,
 } as const;
 
 export type FeatureFlag = keyof typeof featureFlags;
