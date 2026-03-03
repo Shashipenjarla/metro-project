@@ -37,13 +37,8 @@ const Index = () => {
     navigate("/");
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="text-center">Loading...</div>
-      </div>
-    );
-  }
+  // Skip loading gate - allow free access
+
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background/50 to-muted/30">

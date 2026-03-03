@@ -75,7 +75,7 @@ const Header = ({ user }: HeaderProps) => {
 
           {/* User Actions */}
           <div className="flex items-center gap-3">
-            {user ? (
+            {user && (
               <div className="flex items-center gap-3">
                 <div className="hidden sm:flex items-center gap-2 rounded-lg bg-neutral-100 dark:bg-neutral-800 px-3 py-2">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-metro-blue">
@@ -100,13 +100,6 @@ const Header = ({ user }: HeaderProps) => {
                   <span className="hidden sm:inline">Sign Out</span>
                 </Button>
               </div>
-            ) : (
-              <Button 
-                onClick={() => navigate("/auth")}
-                className="bg-gradient-metro-blue hover:shadow-glow-blue focus-ring shimmer"
-              >
-                Sign In
-              </Button>
             )}
 
             {/* Mobile menu button */}
